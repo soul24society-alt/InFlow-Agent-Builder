@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePrivy } from "@privy-io/react-auth";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Sparkles, Zap, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +28,9 @@ export default function AIQuotaDisplay({
   onUpgrade,
   className = "",
 }: AIQuotaDisplayProps) {
-  const { user, authenticated } = usePrivy();
+  const account = useCurrentAccount();
+  const authenticated = !!account;
+  const user = account ? { id: account.address } : null;
   const [quota, setQuota] = useState<QuotaData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

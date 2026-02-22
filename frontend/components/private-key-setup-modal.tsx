@@ -67,21 +67,15 @@ export function PrivateKeySetupModal({
     setIsLoading(true)
 
     try {
-      // Ensure private key has 0x prefix
-      const formattedKey = privateKey.trim().startsWith('0x') 
-        ? privateKey.trim() 
-        : `0x${privateKey.trim()}`
-
-      // Derive wallet address from private key
-      const { ethers } = await import('ethers')
-      const wallet = new ethers.Wallet(formattedKey)
-      const walletAddress = wallet.address
+      // Accept base64 or 0x-hex secret keys
+      const { getAddressFromPrivateKey } = await import('@/lib/wallet')
+      const walletAddress = getAddressFromPrivateKey(privateKey.trim())
 
       // Update user in database
       const { error: updateError } = await supabase
         .from('users')
         .update({
-          private_key: formattedKey,
+          private_key: privateKey.trim(),
           wallet_address: walletAddress,
         })
         .eq('id', userId)

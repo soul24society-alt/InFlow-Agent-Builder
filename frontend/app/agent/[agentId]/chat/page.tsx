@@ -19,8 +19,8 @@ import { getAgentById } from "@/lib/agents"
 import { sendChatWithMemory } from "@/lib/backend"
 import type { Agent } from "@/lib/supabase"
 import type { AgentChatResponse } from "@/lib/types"
-import { ethers } from "ethers"
-import { useWallets } from "@privy-io/react-auth"
+import { getTxExplorerUrl } from "@/lib/onechain"
+import { useCurrentAccount } from "@mysten/dapp-kit"
 
 interface ToolCallInfo {
   tool: string
@@ -137,7 +137,7 @@ export default function AgentChatPage() {
   const params = useParams()
   const agentId = params.agentId as string
   const { logout, dbUser, privyWalletAddress } = useAuth()
-  const { wallets } = useWallets()
+  const account = useCurrentAccount()
 
   const [agent, setAgent] = useState<Agent | null>(null)
   const [loadingAgent, setLoadingAgent] = useState(true)
@@ -148,27 +148,10 @@ export default function AgentChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // Function to handle MetaMask transaction signing
-  const handleMetaMaskTransaction = async (txData: any): Promise<string> => {
-    try {
-      if (!wallets || wallets.length === 0) {
-        throw new Error("No wallet connected. Please connect your wallet.")
-      }
-
-      const wallet = wallets[0]
-      await wallet.switchChain(421614) // Arbitrum Sepolia
-
-      const provider = await wallet.getEthersProvider()
-      const signer = provider.getSigner()
-
-      const tx = await signer.sendTransaction(txData.transaction)
-      const receipt = await tx.wait()
-
-      return receipt.hash
-    } catch (error: any) {
-      console.error("MetaMask transaction error:", error)
-      throw new Error(`Transaction failed: ${error.message}`)
-    }
+  // On OneChain the backend handles transaction signing server-side via the stored secret key.
+  // Client-side signing is removed — just return the digest from the backend response.
+  const handleMetaMaskTransaction = async (_txData: any): Promise<string> => {
+    throw new Error("Client-side signing not supported. Transactions are signed by the backend keypair.")
   }
 
   useEffect(() => {
@@ -246,7 +229,7 @@ export default function AgentChatPage() {
               const txHash = await handleMetaMaskTransaction(result.result)
               
               // Update message with transaction hash
-              const explorerUrl = `https://sepolia.arbiscan.io/tx/${txHash}`
+              const explorerUrl = getTxExplorerUrl(txHash)
               finalMessage += `\n\n✅ Transaction confirmed!\nTransaction Hash: [${txHash.slice(0, 10)}...${txHash.slice(-8)}](${explorerUrl})`
               
               toast({

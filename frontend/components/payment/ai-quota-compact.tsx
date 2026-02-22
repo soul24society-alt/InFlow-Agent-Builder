@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePrivy } from "@privy-io/react-auth";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Sparkles } from "lucide-react";
 
 interface AIQuotaCompactProps {
@@ -14,7 +14,9 @@ interface QuotaData {
 }
 
 export default function AIQuotaCompact({ className = "" }: AIQuotaCompactProps) {
-  const { user, authenticated } = usePrivy();
+  const account = useCurrentAccount();
+  const authenticated = !!account;
+  const user = account ? { id: account.address } : null;
   const [quota, setQuota] = useState<QuotaData>({
     freeRemaining: 3,
     freeLimit: 3,

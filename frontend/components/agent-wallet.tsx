@@ -50,7 +50,7 @@ export function AgentWalletModal({ open, onOpenChange, hideButton = false }: Age
   const [isImporting, setIsImporting] = useState(false)
   const [copied, setCopied] = useState(false)
   const [newPrivateKey, setNewPrivateKey] = useState<string | null>(null)
-  const [tokenBalances, setTokenBalances] = useState<{ stt: string } | null>(null)
+  const [tokenBalances, setTokenBalances] = useState<{ oct: string } | null>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isRemoving, setIsRemoving] = useState(false)
 
@@ -202,11 +202,11 @@ export function AgentWalletModal({ open, onOpenChange, hideButton = false }: Age
   }
 
   const handleClaimFunds = () => {
-    window.open("https://www.alchemy.com/faucets/arbitrum-sepolia", "_blank")
+    window.open("https://faucet.onelabs.cc", "_blank")
   }
 
   // Get balance for display in button
-  const displayBalance = tokenBalances?.stt || "0.00"
+  const displayBalance = tokenBalances?.oct || "0.0000"
   const hasWallet = !!dbUser?.wallet_address
 
   return (
@@ -223,14 +223,14 @@ export function AgentWalletModal({ open, onOpenChange, hideButton = false }: Age
             <>
               <div className="relative w-5 h-5 shrink-0">
                 <Image
-                  src="/stt-logo.png"
-                  alt="STT"
+                  src="/oct-logo.png"
+                  alt="OCT"
                   fill
                   className="object-contain"
                   unoptimized
                 />
               </div>
-              <span className="font-semibold">{displayBalance} STT</span>
+              <span className="font-semibold">{displayBalance} OCT</span>
             </>
           ) : (
             <>
@@ -272,8 +272,8 @@ export function AgentWalletModal({ open, onOpenChange, hideButton = false }: Age
                 <div className="flex items-center justify-center gap-3">
                   <div className="relative w-12 h-12 shrink-0">
                     <Image
-                      src="/stt-logo.png"
-                      alt="STT"
+                      src="/oct-logo.png"
+                      alt="OCT"
                       fill
                       className="object-contain"
                       unoptimized
@@ -281,10 +281,10 @@ export function AgentWalletModal({ open, onOpenChange, hideButton = false }: Age
                   </div>
                   <div className="flex items-baseline gap-2">
                     <div className="text-4xl font-bold leading-none">
-                      {tokenBalances?.stt || "0.00"}
+                      {tokenBalances?.oct || "0.0000"}
                     </div>
                     <div className="text-sm text-muted-foreground font-medium">
-                      STT
+                      OCT
                     </div>
                   </div>
                 </div>

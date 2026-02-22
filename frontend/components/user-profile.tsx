@@ -50,18 +50,12 @@ export function UserProfile({ onLogout }: UserProfileProps) {
     finalWalletAddress: walletAddress 
   })
 
-  // Get user initials for avatar - NO LONGER USED, keeping for reference
+  // Get user initials from wallet address
   const getUserInitials = () => {
-    // Check if user has an email (from Privy user object structure)
-    const email = user?.email?.address
-    if (email) {
-      return email.substring(0, 2).toUpperCase()
-    }
     if (walletAddress) {
       return walletAddress.substring(2, 4).toUpperCase()
     }
     if (user?.id) {
-      // Use user ID as fallback
       return user.id.substring(0, 2).toUpperCase()
     }
     return "U"
@@ -99,11 +93,6 @@ export function UserProfile({ onLogout }: UserProfileProps) {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">Account</p>
-              {user?.email?.address && (
-                <p className="text-xs leading-none text-muted-foreground">
-                  {user.email.address}
-                </p>
-              )}
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />

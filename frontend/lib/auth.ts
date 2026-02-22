@@ -1,33 +1,23 @@
 'use client'
 
-import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { useCurrentAccount, useDisconnectWallet } from '@mysten/dapp-kit'
 import { useEffect, useState } from 'react'
 import { supabase, type User } from './supabase'
 
 export function useAuth() {
-  const { ready, authenticated, user, login, logout } = usePrivy()
-  const { wallets } = useWallets()
+  const account = useCurrentAccount()
+  const { mutate: disconnectWallet } = useDisconnectWallet()
+
+  const ready = true
+  const authenticated = !!account
+  const user = account ? { id: account.address, address: account.address } : null
+  const isWalletLogin = authenticated
+  const privyWalletAddress = account?.address ?? null
+
   const [dbUser, setDbUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [showPrivateKeySetup, setShowPrivateKeySetup] = useState(false)
   const [hasCheckedPrivateKey, setHasCheckedPrivateKey] = useState(false)
-
-  // Check if user logged in via wallet
-  const isWalletLogin = authenticated && wallets && wallets.length > 0
-  
-  // Get the primary wallet address if available
-  const privyWalletAddress = wallets && wallets.length > 0 ? wallets[0].address : null
-
-  console.log('useAuth Debug:', { 
-    authenticated, 
-    walletsCount: wallets?.length, 
-    privyWalletAddress,
-    dbUserWallet: dbUser?.wallet_address,
-    dbUserPrivateKey: dbUser?.private_key ? 'EXISTS' : 'NULL',
-    isWalletLogin,
-    showPrivateKeySetup,
-    hasCheckedPrivateKey
-  })
 
   useEffect(() => {
     if (ready && authenticated && user) {
@@ -139,12 +129,14 @@ export function useAuth() {
   }
 
   const connectMetaMask = async () => {
-    // Use Privy's login modal directly
-    try {
-      await login()
-    } catch (error) {
-      console.error('Login error:', error)
-    }
+    // Use ConnectButton from @mysten/dapp-kit to open wallet picker in UI
+    console.log('Use <ConnectButton /> from @mysten/dapp-kit to connect wallet')
+  }
+
+  const logout = () => {
+    disconnectWallet()
+    setDbUser(null)
+    setHasCheckedPrivateKey(false)
   }
 
   return {

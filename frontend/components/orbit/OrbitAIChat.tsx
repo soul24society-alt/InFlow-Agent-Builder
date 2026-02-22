@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { useState, useRef, useEffect } from 'react'
 import { Send, Bot, User, Sparkles, ArrowRight } from 'lucide-react'
-import { usePrivy } from '@privy-io/react-auth'
+import { useCurrentAccount } from '@mysten/dapp-kit'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -43,7 +43,9 @@ interface OrbitAIChatProps {
 }
 
 export function OrbitAIChat({ onApplyConfig, initialPrompt, onPromptConsumed }: OrbitAIChatProps) {
-  const { user, authenticated } = usePrivy()
+  const account = useCurrentAccount()
+  const authenticated = !!account
+  const user = account ? { id: account.address } : null
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',

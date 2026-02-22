@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Layers, Settings, Shield, Zap, ChevronRight, Plus, List, User, Wallet, LogOut } from 'lucide-react';
-import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { useCurrentAccount, useDisconnectWallet } from '@mysten/dapp-kit';
 import { OrbitBuilderChat } from '@/components/orbit/OrbitBuilderChat';
 import { DeploymentStatus } from '@/components/orbit/DeploymentStatus';
 import { ConfigList } from '@/components/orbit/ConfigList';
@@ -33,18 +33,19 @@ const features = [
 ];
 
 export default function OrbitBuilderPage() {
-  const { authenticated, login, logout } = usePrivy();
-  const { wallets } = useWallets();
+  const account = useCurrentAccount();
+  const { mutate: disconnectWallet } = useDisconnectWallet();
+  const authenticated = !!account;
+  const walletAddress = account?.address ?? null;
   const [activeTab, setActiveTab] = useState('create');
   const [selectedConfig, setSelectedConfig] = useState<string | null>(null);
   const [deploymentId, setDeploymentId] = useState<string | null>(null);
-  const walletAddress = wallets && wallets.length > 0 ? wallets[0].address : null;
   const truncatedAddress = walletAddress 
     ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
     : 'Not connected';
 
   const handleDisconnect = () => {
-    logout();
+    disconnectWallet();
   };
 
   return (

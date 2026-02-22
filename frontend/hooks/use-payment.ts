@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { usePrivy } from "@privy-io/react-auth";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import { toast } from "sonner";
 
 interface UsePaymentOptions {
@@ -23,7 +23,9 @@ interface PricingData {
 }
 
 export function usePayment({ toolName, agentId }: UsePaymentOptions = {}) {
-  const { user, authenticated } = usePrivy();
+  const account = useCurrentAccount();
+  const authenticated = !!account;
+  const user = account ? { id: account.address, address: account.address } : null;
   const [quota, setQuota] = useState<QuotaData | null>(null);
   const [pricing, setPricing] = useState<PricingData | null>(null);
   const [hasAgreedToTerms, setHasAgreedToTerms] = useState(false);

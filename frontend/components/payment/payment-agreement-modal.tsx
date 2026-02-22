@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePrivy } from "@privy-io/react-auth";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import {
   Dialog,
   DialogContent,
@@ -29,7 +29,8 @@ export default function PaymentAgreementModal({
   onClose,
   onAccept,
 }: PaymentAgreementModalProps) {
-  const { user } = usePrivy();
+  const account = useCurrentAccount();
+  const user = account ? { id: account.address } : null;
   const [hasRead, setHasRead] = useState(false);
   const [hasAgreed, setHasAgreed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

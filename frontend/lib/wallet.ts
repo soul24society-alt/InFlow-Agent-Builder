@@ -1,60 +1,47 @@
-import { ethers } from 'ethers'
+import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519'
 import { supabase } from './supabase'
+import { onechainClient, mistToOct } from './onechain'
 
 /**
- * Create a new EVM wallet
- * @returns Object with address and private key
+ * Create a new Ed25519 keypair (OneChain wallet).
+ * Returns the Sui address and base64-encoded secret key.
  */
 export function createWallet(): { address: string; privateKey: string } {
-  const wallet = ethers.Wallet.createRandom()
+  const keypair = Ed25519Keypair.generate()
   return {
-    address: wallet.address,
-    privateKey: wallet.privateKey,
+    address: keypair.toSuiAddress(),
+    privateKey: keypair.getSecretKey(), // base64-encoded 64-byte secret
   }
 }
 
 /**
- * Get wallet address from private key
- * @param privateKey - The private key to derive address from
- * @returns The wallet address
+ * Derive a Sui address from a base64 or 0x-hex secret key.
  */
-export function getAddressFromPrivateKey(privateKey: string): string {
+export function getAddressFromPrivateKey(secretKey: string): string {
   try {
-    const wallet = new ethers.Wallet(privateKey)
-    return wallet.address
-  } catch (error) {
+    const keypair = secretKey.startsWith('0x')
+      ? Ed25519Keypair.fromSecretKey(Buffer.from(secretKey.slice(2), 'hex'))
+      : Ed25519Keypair.fromSecretKey(secretKey)
+    return keypair.toSuiAddress()
+  } catch {
     throw new Error('Invalid private key')
   }
 }
 
 /**
- * Validate private key format
- * @param privateKey - The private key to validate
- * @returns True if valid
+ * Validate an Ed25519 secret key (base64 or 0x-hex).
  */
-export function isValidPrivateKey(privateKey: string): boolean {
+export function isValidPrivateKey(secretKey: string): boolean {
   try {
-    // Remove 0x prefix if present
-    const cleanKey = privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey
-    
-    // Check if it's a valid hex string and correct length (64 hex chars = 32 bytes)
-    if (!/^[0-9a-fA-F]{64}$/.test(cleanKey)) {
-      return false
-    }
-    
-    // Try to create a wallet from it
-    const wallet = new ethers.Wallet(`0x${cleanKey}`)
-    return !!wallet.address
+    getAddressFromPrivateKey(secretKey)
+    return true
   } catch {
     return false
   }
 }
 
 /**
- * Save wallet to user's Supabase record
- * @param userId - The user ID
- * @param walletAddress - The wallet address
- * @param privateKey - The private key
+ * Save wallet to the user's Supabase profile.
  */
 export async function saveWalletToUser(
   userId: string,
@@ -63,67 +50,45 @@ export async function saveWalletToUser(
 ): Promise<void> {
   const { error } = await supabase
     .from('users')
-    .update({
-      wallet_address: walletAddress,
-      private_key: privateKey,
-    })
+    .update({ wallet_address: walletAddress, private_key: privateKey })
     .eq('id', userId)
-
-  if (error) {
-    throw new Error(`Failed to save wallet: ${error.message}`)
-  }
+  if (error) throw new Error(`Failed to save wallet: ${error.message}`)
 }
 
 /**
- * Remove wallet from user's Supabase record
- * @param userId - The user ID
+ * Remove wallet from the user's Supabase profile.
  */
 export async function removeWalletFromUser(userId: string): Promise<void> {
   const { error } = await supabase
     .from('users')
-    .update({
-      wallet_address: null,
-      private_key: null,
-    })
+    .update({ wallet_address: null, private_key: null })
     .eq('id', userId)
+  if (error) throw new Error(`Failed to remove wallet: ${error.message}`)
+}
 
-  if (error) {
-    throw new Error(`Failed to remove wallet: ${error.message}`)
+/**
+ * Fetch OCT balance for a given address.
+ */
+export async function getTokenBalances(address: string): Promise<{ oct: string }> {
+  try {
+    const balance = await onechainClient.getBalance({
+      owner: address,
+      coinType: '0x2::oct::OCT',
+    })
+    const formatted = mistToOct(BigInt(balance.totalBalance))
+    return { oct: parseFloat(formatted).toFixed(4) }
+  } catch {
+    return { oct: '0.0000' }
   }
 }
 
 /**
- * Fetch ETH balance on Ethereum Sepolia
- * @param address - The wallet address
- * @returns ETH balance as string
+ * Legacy alias — maps `oct` → `stt` so existing components still compile.
+ * @deprecated Use getTokenBalances which returns { oct } instead.
  */
-export async function getTokenBalances(address: string): Promise<{
-  stt: string
-}> {
-  const ETH_RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com'
-
-  try {
-    const provider = new ethers.JsonRpcProvider(ETH_RPC_URL)
-    
-    // Get native ETH balance on Ethereum Sepolia
-    const balance = await provider.getBalance(address)
-
-    // Format balance (STT uses 18 decimals like ETH)
-    const formattedBalance = ethers.formatEther(balance)
-    const numericBalance = parseFloat(formattedBalance)
-
-    // Format to 2 decimal places
-    const sttBalance = numericBalance.toFixed(2)
-
-    return {
-      stt: sttBalance,
-    }
-  } catch (error) {
-    console.error('Error fetching STT balance:', error)
-    // Return zero balance on error
-    return {
-      stt: '0.00',
-    }
-  }
+export async function getLegacyTokenBalances(
+  address: string
+): Promise<{ stt: string }> {
+  const { oct } = await getTokenBalances(address)
+  return { stt: oct }
 }
-

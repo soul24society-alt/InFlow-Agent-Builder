@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Bot, User, Sparkles, Rocket, Check, Circle, RefreshCw, Wallet } from 'lucide-react';
-import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { useCurrentAccount, useDisconnectWallet } from '@mysten/dapp-kit';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
@@ -44,8 +44,11 @@ interface OrbitBuilderChatProps {
 }
 
 export function OrbitBuilderChat({ onDeploymentStart, className }: OrbitBuilderChatProps) {
-  const { user, authenticated, login } = usePrivy();
-  const { wallets } = useWallets();
+  const account = useCurrentAccount();
+  const authenticated = !!account;
+  const user = account ? { id: account.address } : null;
+  // login is a no-op here - use <ConnectButton /> at page level to connect wallet
+  const login = () => console.log('Use ConnectButton to connect');
   
   const [sessionId, setSessionId] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -103,7 +106,7 @@ export function OrbitBuilderChat({ onDeploymentStart, className }: OrbitBuilderC
     prevParamsRef.current = { ...collectedParams };
   }, [collectedParams]);
   
-  const walletAddress = wallets && wallets.length > 0 ? wallets[0].address : null;
+  const walletAddress = account?.address ?? null;
   
   // Generate session ID on mount
   useEffect(() => {
