@@ -67,14 +67,14 @@ backend/
 #### `abis.js`
 - TokenFactory ABI
 - NFTFactory ABI
-- ERC20 Token ABI
-- ERC721 Collection ABI
+- Move Coin module ABI (legacy)
+- Move NFT collection ABI (legacy)
 
 ### Controllers (`controllers/`)
 
 #### `tokenController.js`
 **Functions:**
-- `deployToken(req, res)` - Deploy ERC20 token via factory
+- `deployToken(req, res)` - Deploy Move fungible token
 - `getTokenInfo(req, res)` - Get token metadata
 - `getTokenBalance(req, res)` - Get token balance for address
 
@@ -86,8 +86,8 @@ backend/
 
 #### `transferController.js`
 **Functions:**
-- `transfer(req, res)` - Transfer ETH or ERC20 tokens
-- `transferERC20(res, wallet, ...)` - Internal ERC20 transfer logic
+- `transfer(req, res)` - Transfer OCT or Move tokens
+- `transferERC20(res, wallet, ...)` - Internal Move token transfer logic
 - `transferNative(res, wallet, ...)` - Internal native ETH transfer logic
 - `getBalance(req, res)` - Get native ETH balance
 
@@ -134,7 +134,7 @@ GET    /health
 
 #### `blockchain.js`
 **Functions:**
-- `getProvider()` - Get Arbitrum Sepolia provider
+- `getProvider()` - Get OneChain testnet provider
 - `getWallet(privateKey, provider)` - Create wallet instance
 - `getContract(address, abi, signer)` - Create contract instance
 - `hasSufficientBalance(address, amount)` - Check wallet balance

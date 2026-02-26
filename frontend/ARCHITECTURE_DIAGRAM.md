@@ -53,7 +53,7 @@
 │                                                                             │
 │  • Uses Google Gemini 2.0 Flash for AI processing                          │
 │  • Parses natural language: "Deploy a token called MyToken"                │
-│  • Determines tool: deploy_erc20                                           │
+│  • Determines tool: deploy_token                                           │
 │  • Extracts parameters:                                                     │
 │    - name: "MyToken"                                                        │
 │    - symbol: "MTK"                                                          │
@@ -61,7 +61,7 @@
 │  • Adds private key if needed                                               │
 │                                                                             │
 │  Tool Execution:                                                            │
-│  execute_tool("deploy_erc20", {                                            │
+│  execute_tool("deploy_token", {                                            │
 │    privateKey: "0x...",                                                     │
 │    name: "MyToken",                                                         │
 │    symbol: "MTK",                                                           │
@@ -78,7 +78,7 @@
 │                    Port 3000 (Express.js)                                   │
 │                                                                             │
 │  • Validates request parameters                                             │
-│  • Connects to Arbitrum Sepolia RPC                                         │
+│  • Connects to OneChain Testnet RPC                                         │
 │  • Creates wallet from private key                                          │
 │  • Prepares transaction:                                                    │
 │    - Convert name/symbol to bytes32                                         │
@@ -127,8 +127,8 @@
 │  Final Response:                                                            │
 │  {                                                                          │
 │    agent_response: "I've successfully deployed...",                         │
-│    tool_calls: [{ tool: "deploy_erc20", parameters: {...} }],             │
-│    results: [{ success: true, tool: "deploy_erc20", result: {...} }]      │
+│    tool_calls: [{ tool: "deploy_token", parameters: {...} }],             │
+│    results: [{ success: true, tool: "deploy_token", result: {...} }]      │
 │  }                                                                          │
 └──────────────────────────────┬──────────────────────────────────────────────┘
                                │
@@ -185,13 +185,13 @@
 - **Sequential Execution**: Supports chaining multiple operations
 
 ### 3. Blockchain Backend (Express - Port 3000)
-- **Blockchain Interface**: Direct interaction with Arbitrum Sepolia
+- **Blockchain Interface**: Direct interaction with OneChain Testnet
 - **Smart Contract Calls**: Executes token factory and NFT operations
 - **Transaction Management**: Handles gas estimation and confirmations
 - **Result Formatting**: Returns standardized responses
 
 ### 4. Blockchain Layer
-- **Arbitrum Sepolia**: Testnet blockchain
+- **OneChain Testnet**: Testnet blockchain
 - **Stylus Contracts**: Rust-based smart contracts
 - **Explorer**: Transaction verification and tracking
 
@@ -270,8 +270,8 @@ The system supports these blockchain operations:
 
 | Tool | Backend Route | Blockchain Operation |
 |------|--------------|---------------------|
-| deploy_erc20 | POST /token/deploy | Deploy ERC20 token via TokenFactory |
-| deploy_erc721 | POST /nft/deploy-collection | Deploy ERC721 collection via NFTFactory |
+| deploy_token | POST /token/deploy | Deploy ERC20 token via TokenFactory |
+| deploy_nft_collection | POST /nft/deploy-collection | Deploy ERC721 collection via NFTFactory |
 | transfer | POST /transfer | Transfer ETH or ERC20 tokens |
 | get_balance | GET /transfer/balance/:address | Query ETH balance |
 | get_token_balance | GET /token/balance/:id/:address | Query ERC20 balance |

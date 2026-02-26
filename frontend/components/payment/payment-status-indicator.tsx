@@ -45,7 +45,7 @@ interface PaymentData {
   refundedAt?: string;
 }
 
-const EXPLORER_URL = "https://sepolia.arbiscan.io";
+const EXPLORER_URL = "https://onescan.cc/testnet";
 
 export default function PaymentStatusIndicator({
   paymentHash,

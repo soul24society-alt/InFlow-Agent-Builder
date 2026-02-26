@@ -12,45 +12,45 @@ const AVAILABLE_TOOLS = {
   },
   get_balance: {
     name: 'get_balance',
-    description: 'Gets the ETH balance of a wallet address. If the user asks for "my balance", the connected wallet address will be used automatically.',
+    description: 'Gets the OCT balance of a wallet address on OneChain. If the user asks for "my balance", the connected wallet address will be used automatically.',
     parameters: ['wallet_address (optional if user is asking for their own balance)'],
-    examples: ['What is the balance of 0x123...?', 'Check my wallet balance', 'How much ETH do I have?']
+    examples: ['What is the balance of 0x123...?', 'Check my wallet balance', 'How much OCT do I have?']
   },
   transfer: {
     name: 'transfer',
-    description: 'Transfers ETH or ERC20 tokens from user\'s connected wallet to another wallet. The user\'s wallet address is used automatically.',
-    parameters: ['to_address', 'amount', 'token_address (optional)'],
-    examples: ['Send 1 ETH to 0x123...', 'Transfer 100 USDC to Alice', 'Pay Bob 0.5 ETH']
+    description: 'Transfers OCT or Move tokens from user\'s connected wallet to another wallet. The user\'s wallet address is used automatically.',
+    parameters: ['to_address', 'amount', 'coin_type (optional)'],
+    examples: ['Send 1 OCT to 0x123...', 'Transfer tokens to Alice', 'Pay Bob 0.5 OCT']
   },
-  deploy_erc20: {
-    name: 'deploy_erc20',
-    description: 'Deploys a new ERC20 token contract',
+  deploy_token: {
+    name: 'deploy_token',
+    description: 'Deploys a new fungible token (Move coin) on OneChain',
     parameters: ['name', 'symbol', 'decimals', 'initial_supply'],
-    examples: ['Deploy a new token called MyToken', 'Create an ERC20 token', 'Launch a new cryptocurrency']
+    examples: ['Deploy a new token called MyToken', 'Create a Move coin', 'Launch a new cryptocurrency on OneChain']
   },
-  deploy_erc721: {
-    name: 'deploy_erc721',
-    description: 'Deploys a new ERC721 NFT collection contract',
+  deploy_nft_collection: {
+    name: 'deploy_nft_collection',
+    description: 'Deploys a new NFT collection (Move NFT) on OneChain',
     parameters: ['name', 'symbol', 'base_uri'],
-    examples: ['Deploy an NFT collection', 'Create a new NFT project', 'Launch an NFT collection']
+    examples: ['Deploy an NFT collection', 'Create a new NFT project on OneChain', 'Launch an NFT collection']
   },
   mint_nft: {
     name: 'mint_nft',
-    description: 'Mints a new NFT in an existing ERC721 collection',
-    parameters: ['contract_address', 'to_address', 'token_uri'],
-    examples: ['Mint an NFT', 'Create a new NFT in my collection', 'Mint token ID 5']
+    description: 'Mints a new NFT in an existing OneChain NFT collection',
+    parameters: ['collection_address', 'to_address', 'token_uri'],
+    examples: ['Mint an NFT', 'Create a new NFT in my collection', 'Mint a token']
   },
   get_token_info: {
     name: 'get_token_info',
-    description: 'Gets information about an ERC20 token (name, symbol, decimals, total supply)',
-    parameters: ['token_address'],
-    examples: ['Get info about token 0x123...', 'What is this token?', 'Token details for 0xabc...']
+    description: 'Gets information about a Move token/coin on OneChain (name, symbol, decimals, total supply)',
+    parameters: ['token_id'],
+    examples: ['Get info about token 0x123...', 'What is this token?', 'Token details']
   },
   get_token_balance: {
     name: 'get_token_balance',
-    description: 'Gets the balance of a specific ERC20 token for a wallet',
-    parameters: ['wallet_address', 'token_address'],
-    examples: ['How many USDC does 0x123... have?', 'Check my token balance', 'Token balance for wallet']
+    description: 'Gets the balance of a specific Move token for a wallet on OneChain',
+    parameters: ['wallet_address', 'token_id'],
+    examples: ['Check my token balance', 'Token balance for wallet']
   },
   get_nft_info: {
     name: 'get_nft_info',
@@ -69,6 +69,48 @@ const AVAILABLE_TOOLS = {
     description: 'Sends an email to one or more recipients. Supports plain text, HTML, CC, BCC, reply-to, and attachments.',
     parameters: ['to', 'subject', 'text (optional)', 'html (optional)', 'cc (optional)', 'bcc (optional)', 'replyTo (optional)'],
     examples: ['Send an email to alice@example.com', 'Email Bob the transaction receipt', 'Notify team about the deployment']
+  },
+  condition_check: {
+    name: 'condition_check',
+    description: 'Evaluates a boolean condition expression and returns true or false. Useful for conditional branching in workflows (e.g., "is balance > 100?", "is price above threshold?").',
+    parameters: ['expression', 'variables (optional)', 'description (optional)'],
+    examples: ['Is my balance above 100 OCT?', 'Check if token price is below 1 USD', 'Is the wallet funded?', 'Evaluate balance > threshold']
+  },
+  yes_no_answer: {
+    name: 'yes_no_answer',
+    description: 'Records or evaluates a yes/no decision. Returns a boolean result (true for yes, false for no). Useful for governance votes, approval gates, and conditional logic in workflows.',
+    parameters: ['question', 'answer (yes/no/true/false)'],
+    examples: ['Vote yes on this proposal', 'Answer no to the governance question', 'Approve this transaction? Yes', 'Should we proceed? No']
+  },
+  send_webhook: {
+    name: 'send_webhook',
+    description: 'Sends an HTTP POST (or other method) to a webhook URL with a custom payload. Use for integrations, notifications, or workflow triggers to external services.',
+    parameters: ['url', 'payload (object)', 'method (optional, default POST)', 'headers (optional)', 'secret (optional HMAC secret)'],
+    examples: ['Send a webhook to https://hooks.example.com/notify', 'Trigger an n8n workflow via webhook', 'Post transaction data to my backend', 'Notify Slack via webhook']
+  },
+  create_dao: {
+    name: 'create_dao',
+    description: 'Creates a new on-chain DAO (Decentralized Autonomous Organization) with governance voting capabilities on OneChain.',
+    parameters: ['name', 'description', 'walletAddress', 'votingPeriodDays (optional, default 7)', 'quorumPercent (optional, default 51)'],
+    examples: ['Create a DAO called MyDAO', 'Launch a governance DAO for my project', 'Set up on-chain voting organization']
+  },
+  create_proposal: {
+    name: 'create_proposal',
+    description: 'Creates a new governance proposal in an existing DAO. Community members can then vote yes or no on the proposal.',
+    parameters: ['daoId', 'title', 'description', 'walletAddress', 'actions (optional)'],
+    examples: ['Create a proposal to fund development', 'Submit a governance proposal', 'Propose a parameter change in the DAO']
+  },
+  vote_on_proposal: {
+    name: 'vote_on_proposal',
+    description: 'Casts a yes, no, or abstain vote on an active governance proposal in a DAO.',
+    parameters: ['proposalId', 'vote (yes/no/abstain)', 'walletAddress'],
+    examples: ['Vote yes on proposal prop_123', 'Cast a no vote on the governance proposal', 'Abstain from voting', 'Vote on the funding proposal']
+  },
+  get_proposal: {
+    name: 'get_proposal',
+    description: 'Gets the details and current vote tally of a governance proposal.',
+    parameters: ['proposalId'],
+    examples: ['Get proposal details', 'Check vote tally for proposal', 'What is the status of proposal prop_123?']
   }
 };
 
@@ -230,8 +272,8 @@ missing_info: [] (EMPTY — all data comes from tools)
 3. Use "parallel" when tools are independent
 4. Extract parameters from BOTH the current message AND conversation history
 5. For ANY calculation involving prices/balances → add fetch_price + calculate steps
-6. Ethereum addresses are 42 chars starting with "0x"
-7. Network: Arbitrum Sepolia (Chain ID: 421614)
+6. OneChain addresses are 66 chars (0x + 64 hex) — Sui/Move style
+7. Network: OneChain Testnet (RPC: https://rpc-testnet.onelabs.cc:443)
 8. When the user says "calculate" or "now calculate" after previous data was fetched, create a calculate step using the data from conversation context
 9. If the user says generic words like "this balance" or "my balance", look for the wallet address and balance in recent conversation messages
 10. NEVER put prices, balances, or token info in missing_info — those are fetchable by tools
@@ -350,19 +392,19 @@ function detectToolsWithRegex(message) {
     });
   }
   
-  if (/\b(deploy.*erc20|deploy.*token|create.*token|new.*token)\b/i.test(message)) {
+  if (/\b(deploy.*erc20|deploy.*token|create.*token|new.*token|move.*coin|fungible.*token)\b/i.test(message)) {
     tools.push({ 
-      tool: 'deploy_erc20', 
-      reason: 'User wants to deploy ERC20',
+      tool: 'deploy_token', 
+      reason: 'User wants to deploy a Move fungible token',
       parameters: {},
       depends_on: [] 
     });
   }
   
-  if (/\b(deploy.*erc721|deploy.*nft|create.*nft|new.*nft|nft.*collection)\b/i.test(message)) {
+  if (/\b(deploy.*erc721|deploy.*nft|create.*nft|new.*nft|nft.*collection|move.*nft)\b/i.test(message)) {
     tools.push({ 
-      tool: 'deploy_erc721', 
-      reason: 'User wants to deploy NFT',
+      tool: 'deploy_nft_collection', 
+      reason: 'User wants to deploy a Move NFT collection',
       parameters: {},
       depends_on: [] 
     });

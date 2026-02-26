@@ -37,7 +37,7 @@ const testCases = [
     name: 'Sequential Workflow',
     message: 'Deploy a token called MyToken with 1 million supply, then transfer 1000 tokens to 0x123',
     expected: {
-      tools: ['deploy_erc20', 'transfer'],
+      tools: ['deploy_token', 'transfer'],
       type: 'sequential'
     }
   },

@@ -101,19 +101,19 @@ ONECHAIN_NETWORKS = {
     "testnet": {
         "name": "OneChain Testnet",
         "rpc": "https://rpc-testnet.onelabs.cc:443",
-        "explorer": "https://explorer-testnet.onelabs.cc",
+        "explorer": "https://onescan.cc/testnet",
         "faucet": "https://faucet.onelabs.cc",
     },
     "mainnet": {
         "name": "OneChain Mainnet",
         "rpc": "https://rpc-mainnet.onelabs.cc:443",
-        "explorer": "https://explorer.onelabs.cc",
+        "explorer": "https://onescan.cc",
         "faucet": None,
     },
     "devnet": {
         "name": "OneChain Devnet",
         "rpc": "https://rpc-devnet.onelabs.cc:443",
-        "explorer": "https://explorer-devnet.onelabs.cc",
+        "explorer": "https://onescan.cc/devnet",
         "faucet": "https://faucet-devnet.onelabs.cc",
     },
 }

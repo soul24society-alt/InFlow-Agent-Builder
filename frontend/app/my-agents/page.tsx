@@ -420,7 +420,7 @@ export default function MyAgents() {
 {`curl -X POST http://localhost:8000/agent/chat \\
   -H "Content-Type: application/json" \\
   -d '{
-    "tools": ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_erc20", next_tool: null }], null, 2).split("\n").map((l, i) => (i === 0 ? l : "    " + l)).join("\n")},
+    "tools": ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_token", next_tool: null }], null, 2).split("\n").map((l, i) => (i === 0 ? l : "    " + l)).join("\n")},
     "user_message": "Deploy a token called MyToken",
     "private_key": "YOUR_PRIVATE_KEY"
   }'`}
@@ -430,7 +430,7 @@ export default function MyAgents() {
                       size="icon"
                       className="absolute top-2 right-2 h-7 w-7"
                       onClick={() => {
-                        const cmd = `curl -X POST http://localhost:8000/agent/chat \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "tools": ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_erc20", next_tool: null }])},\n    "user_message": "Deploy a token called MyToken",\n    "private_key": "YOUR_PRIVATE_KEY"\n  }'`
+                        const cmd = `curl -X POST http://localhost:8000/agent/chat \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "tools": ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_token", next_tool: null }])},\n    "user_message": "Deploy a token called MyToken",\n    "private_key": "YOUR_PRIVATE_KEY"\n  }'`
                         copyToClipboard(cmd, "cURL")
                       }}
                     >
@@ -446,7 +446,7 @@ export default function MyAgents() {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    tools: ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_erc20", next_tool: null }])},
+    tools: ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_token", next_tool: null }])},
     user_message: "Deploy a token called MyToken",
     private_key: "YOUR_PRIVATE_KEY",
   }),
@@ -460,7 +460,7 @@ console.log(data);`}
                       size="icon"
                       className="absolute top-2 right-2 h-7 w-7"
                       onClick={() => {
-                        const js = `const response = await fetch("http://localhost:8000/agent/chat", {\n  method: "POST",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify({\n    tools: ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_erc20", next_tool: null }])},\n    user_message: "Deploy a token called MyToken",\n    private_key: "YOUR_PRIVATE_KEY",\n  }),\n});\n\nconst data = await response.json();\nconsole.log(data);`
+                        const js = `const response = await fetch("http://localhost:8000/agent/chat", {\n  method: "POST",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify({\n    tools: ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_token", next_tool: null }])},\n    user_message: "Deploy a token called MyToken",\n    private_key: "YOUR_PRIVATE_KEY",\n  }),\n});\n\nconst data = await response.json();\nconsole.log(data);`
                         copyToClipboard(js, "JavaScript")
                       }}
                     >

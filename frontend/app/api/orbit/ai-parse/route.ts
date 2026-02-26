@@ -31,20 +31,20 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    const prompt = `You are an Arbitrum Orbit L3 configuration expert. Parse the user's requirements and generate a complete L3 chain configuration.
+    const prompt = `You are a OneChain subnet (L3) configuration expert. Parse the user's requirements and generate a complete OneChain subnet configuration.
 
 User Request: "${userQuery}"
 
 Analyze the request and extract/infer:
 1. Chain name (from context or suggest one)
 2. Chain ID (generate a unique number like 412346-412999 for L3s)
-3. Parent chain (default: "arbitrum-sepolia" for testnet, "arbitrum-one" for production)
-4. Owner address (if not provided, use: "0x0000000000000000000000000000000000000000")
-5. Validators (if specified, otherwise create 3 validator addresses starting with 0x1111..., 0x2222..., 0x3333...)
+3. Parent chain (default: "onechain-testnet" for testnet, "onechain-mainnet" for production)
+4. Owner address (if not provided, use: "0x0000000000000000000000000000000000000000000000000000000000000000")
+5. Validators (if specified, otherwise create 3 validator addresses)
 6. Chain configuration:
    - chainName: user-specified or inferred from chain name
-   - nativeToken: {name, symbol, decimals} - default to "Ether", "ETH", 18 unless specified
-   - sequencerUrl: generate as https://sequencer-{chainname}.example.com
+   - nativeToken: {name, symbol, decimals} - default to "OneChain Token", "OCT", 9 unless specified
+   - sequencerUrl: generate as https://sequencer-{chainname}.onelabs.cc
    - blockTime: infer from requirements (gaming=1s, defi=2s, enterprise=3s, default=2s)
    - gasLimit: infer from requirements (high-throughput=50000000, normal=30000000, default=30000000)
 
@@ -53,7 +53,7 @@ Important rules:
 2. If user mentions "DeFi" or "finance", set blockTime to 2 seconds  
 3. If user mentions "enterprise" or "private", set blockTime to 3 seconds
 4. If user specifies number of validators, generate that many addresses
-5. Generate realistic placeholder validator addresses (0x1111...1111, 0x2222...2222, etc.)
+5. Generate realistic placeholder validator addresses (0x1111...1111, 0x2222...2222, etc., 64 hex chars each)
 6. Chain IDs for L3s should be in range 412346-412999
 7. Make the chain name URL-friendly (lowercase, no spaces)
 
@@ -61,17 +61,17 @@ Respond ONLY with a JSON object in this EXACT format (no other text):
 {
   "name": "chain-name",
   "chainId": "412xxx",
-  "parentChain": "arbitrum-sepolia",
-  "owner": "0x0000000000000000000000000000000000000000",
-  "validators": ["0x1111111111111111111111111111111111111111", "0x2222222222222222222222222222222222222222"],
+  "parentChain": "onechain-testnet",
+  "owner": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "validators": ["0x1111111111111111111111111111111111111111111111111111111111111111", "0x2222222222222222222222222222222222222222222222222222222222222222"],
   "chainConfig": {
     "chainName": "Readable Chain Name",
     "nativeToken": {
-      "name": "Ether",
-      "symbol": "ETH",
-      "decimals": 18
+      "name": "OneChain Token",
+      "symbol": "OCT",
+      "decimals": 9
     },
-    "sequencerUrl": "https://sequencer-chainname.example.com",
+    "sequencerUrl": "https://sequencer-chainname.onelabs.cc",
     "blockTime": 2,
     "gasLimit": 30000000
   }

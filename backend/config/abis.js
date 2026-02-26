@@ -1,4 +1,11 @@
-// TokenFactory ABI (Stylus contract)
+/**
+ * Legacy Stylus/EVM contract ABIs — kept for backward compatibility.
+ * OneChain uses Move modules (BCS-encoded) instead of Solidity ABIs.
+ * These will be replaced by Move module type tags when the Move contracts are deployed.
+ * See: contract/token_factory_move and contract/nft_factory_move for the Move equivalents.
+ */
+
+// TokenFactory ABI (legacy Stylus contract — use Move module on OneChain)
 const FACTORY_ABI = [
   "function createToken(bytes32 name, bytes32 symbol, uint256 decimals, uint256 initial_supply) external returns (uint256)",
   "function getTokenCount() external view returns (uint256)",

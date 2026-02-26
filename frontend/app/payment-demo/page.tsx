@@ -76,9 +76,9 @@ export default function PaymentDemo() {
                 />
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Deploy ERC-20</p>
+                <p className="text-sm text-muted-foreground">Deploy Token</p>
                 <ToolPricingBadge 
-                  toolName="deploy_erc20"
+                  toolName="deploy_token"
                   size="md"
                   showTooltip={true}
                 />
@@ -210,7 +210,7 @@ export default function PaymentDemo() {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-green-600">✅</span>
-              <span className="text-sm">Arbitrum Sepolia RPC: Configured</span>
+              <span className="text-sm">OneChain Testnet RPC: Configured</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-green-600">✅</span>

@@ -71,11 +71,11 @@ export function OrbitBuilderChat({ onDeploymentStart, className }: OrbitBuilderC
   
   // Use-case presets for auto-filling recommended defaults
   const useCasePresets: Record<string, Record<string, any>> = {
-    gaming: { data_availability: 'anytrust', block_time: 1, gas_limit: 50000000, validators: 3, challenge_period: 7, native_token: { name: 'Ether', symbol: 'ETH', decimals: 18 }, parent_chain: 'arbitrum-sepolia' },
-    defi: { data_availability: 'rollup', block_time: 2, gas_limit: 30000000, validators: 5, challenge_period: 7, native_token: { name: 'Ether', symbol: 'ETH', decimals: 18 }, parent_chain: 'arbitrum-sepolia' },
-    enterprise: { data_availability: 'anytrust', block_time: 3, gas_limit: 30000000, validators: 5, challenge_period: 14, native_token: { name: 'Ether', symbol: 'ETH', decimals: 18 }, parent_chain: 'arbitrum-sepolia' },
-    nft: { data_availability: 'anytrust', block_time: 2, gas_limit: 40000000, validators: 3, challenge_period: 7, native_token: { name: 'Ether', symbol: 'ETH', decimals: 18 }, parent_chain: 'arbitrum-sepolia' },
-    general: { data_availability: 'anytrust', block_time: 2, gas_limit: 30000000, validators: 3, challenge_period: 7, native_token: { name: 'Ether', symbol: 'ETH', decimals: 18 }, parent_chain: 'arbitrum-sepolia' },
+    gaming: { data_availability: 'anytrust', block_time: 1, gas_limit: 50000000, validators: 3, challenge_period: 7, native_token: { name: 'OneChain Token', symbol: 'OCT', decimals: 9 }, parent_chain: 'onechain-testnet' },
+    defi: { data_availability: 'rollup', block_time: 2, gas_limit: 30000000, validators: 5, challenge_period: 7, native_token: { name: 'OneChain Token', symbol: 'OCT', decimals: 9 }, parent_chain: 'onechain-testnet' },
+    enterprise: { data_availability: 'anytrust', block_time: 3, gas_limit: 30000000, validators: 5, challenge_period: 14, native_token: { name: 'OneChain Token', symbol: 'OCT', decimals: 9 }, parent_chain: 'onechain-testnet' },
+    nft: { data_availability: 'anytrust', block_time: 2, gas_limit: 40000000, validators: 3, challenge_period: 7, native_token: { name: 'OneChain Token', symbol: 'OCT', decimals: 9 }, parent_chain: 'onechain-testnet' },
+    general: { data_availability: 'anytrust', block_time: 2, gas_limit: 30000000, validators: 3, challenge_period: 7, native_token: { name: 'OneChain Token', symbol: 'OCT', decimals: 9 }, parent_chain: 'onechain-testnet' },
   };
   
   // Track which fields changed for highlight animation
@@ -352,10 +352,10 @@ export function OrbitBuilderChat({ onDeploymentStart, className }: OrbitBuilderC
       case 'chain_name':
         return text.trim();
       case 'parent_chain': {
-        if (t.includes('sepolia') || t.includes('test')) return 'arbitrum-sepolia';
-        if (t.includes('one') || t.includes('main')) return 'arbitrum-one';
-        if (t.includes('nova')) return 'arbitrum-nova';
-        return 'arbitrum-sepolia';
+        if (t.includes('testnet') || t.includes('test') || t.includes('sepolia')) return 'onechain-testnet';
+        if (t.includes('mainnet') || t.includes('main')) return 'onechain-mainnet';
+        if (t.includes('devnet') || t.includes('dev') || t.includes('nova')) return 'onechain-devnet';
+        return 'onechain-testnet';
       }
       case 'data_availability': {
         if (t.includes('rollup')) return 'rollup';
@@ -796,9 +796,9 @@ export function OrbitBuilderChat({ onDeploymentStart, className }: OrbitBuilderC
             isHighlighted={changedFields.has('parent_chain')}
             inputType="select"
             options={[
-              { value: 'arbitrum-sepolia', label: 'Arbitrum Sepolia' },
-              { value: 'arbitrum-one', label: 'Arbitrum One' },
-              { value: 'arbitrum-nova', label: 'Arbitrum Nova' },
+              { value: 'onechain-testnet', label: 'OneChain Testnet' },
+              { value: 'onechain-mainnet', label: 'OneChain Mainnet' },
+              { value: 'onechain-devnet', label: 'OneChain Devnet' },
             ]}
             onChange={(val) => handleParamChange('parent_chain', val)}
           />

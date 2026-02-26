@@ -42,7 +42,7 @@ import { PaymentModal } from "@/components/payment"
 **Props**:
 - `open` (boolean) - Control modal visibility
 - `onOpenChange` (function) - Handle modal state changes
-- `toolName` (string) - Internal tool identifier (e.g., "deploy_erc20")
+- `toolName` (string) - Internal tool identifier (e.g., "deploy_token")
 - `toolDisplayName` (string) - User-facing tool name
 - `price` (string) - Price in OCT (e.g., "0.25")
 - `agentId` (string, optional) - Associated agent ID
@@ -148,7 +148,7 @@ import { ToolPricingBadge, ToolPriceIndicator } from "@/components/payment"
 
 // Full badge with tooltip
 <ToolPricingBadge
-  toolName="deploy_erc20"
+  toolName="deploy_token"
   onClick={() => {
     // Open payment modal
     setShowPayment(true)

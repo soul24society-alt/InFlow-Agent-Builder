@@ -111,7 +111,7 @@ export default function PaymentAgreementModal({
                 </li>
                 <li>Prices range from $0.25 to $5.00 USD in USDC</li>
                 <li>Pricing is displayed before each transaction</li>
-                <li>All payments are in USDC on Arbitrum Sepolia</li>
+                <li>All payments are in USDC on OneChain testnet</li>
               </ul>
             </section>
 
@@ -175,10 +175,10 @@ export default function PaymentAgreementModal({
                 7. Network & Fees
               </h3>
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                <li>All transactions occur on Arbitrum Sepolia (testnet)</li>
+                <li>All transactions occur on OneChain testnet</li>
                 <li>You pay gas fees for blockchain transactions</li>
                 <li>Gas fees are separate from service pricing</li>
-                <li>Arbitrum offers low gas fees compared to Ethereum</li>
+                <li>OneChain offers low gas fees with Move VM efficiency</li>
               </ul>
             </section>
 

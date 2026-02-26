@@ -14,9 +14,9 @@ export const ONECHAIN_RPC: Record<OneChainNetwork, string> = {
 }
 
 export const ONECHAIN_EXPLORER: Record<OneChainNetwork, string> = {
-  testnet: 'https://explorer-testnet.onelabs.cc',
+  testnet: 'https://onescan.cc/testnet',
   mainnet: 'https://explorer-mainnet.onelabs.cc',
-  devnet:  'https://explorer-devnet.onelabs.cc',
+  devnet:  'https://onescan.cc/devnet',
 }
 
 export const ONECHAIN_FAUCET: Record<OneChainNetwork, string> = {

@@ -1,9 +1,14 @@
-const { ethers } = require('ethers');
+/**
+ * OneChain Subnet Configuration Controller
+ * Handles creation, validation, and management of OneChain subnet (L2/L3) configurations
+ */
 
 /**
- * Orbit L3 Configuration Controller
- * Handles creation, validation, and management of Arbitrum Orbit L3 chain configurations
+ * Validates a OneChain/Sui-compatible address (0x-prefixed 64-char hex)
  */
+function isValidOnechainAddress(addr) {
+  return /^0x[0-9a-fA-F]{64}$/.test(addr);
+}
 
 // In-memory storage for now (will be replaced with database)
 const configs = new Map();
@@ -53,7 +58,7 @@ async function createConfig(req, res) {
     }
 
     // Validate parent chain
-    const validParentChains = ['arbitrum-one', 'arbitrum-sepolia', 'arbitrum-goerli', 'ethereum'];
+    const validParentChains = ['onechain-testnet', 'onechain-mainnet', 'onechain-devnet'];
     if (!validParentChains.includes(parentChain)) {
       return res.status(400).json({
         success: false,
@@ -72,10 +77,10 @@ async function createConfig(req, res) {
     // Validate addresses
     const addresses = [sequencerAddress, ownerAddress, batchPosterAddress].filter(Boolean);
     for (const addr of addresses) {
-      if (!ethers.isAddress(addr)) {
+      if (!isValidOnechainAddress(addr)) {
         return res.status(400).json({
           success: false,
-          error: `Invalid Ethereum address: ${addr}`
+          error: `Invalid OneChain address: ${addr}`
         });
       }
     }
@@ -459,8 +464,8 @@ function simulateDeployment(deploymentId, configId) {
         deployment.completedAt = new Date().toISOString();
         deployment.transactionHash = `0x${Math.random().toString(16).substring(2, 66)}`;
         deployment.chainAddress = `0x${Math.random().toString(16).substring(2, 42)}`;
-        deployment.explorerUrl = `https://sepolia-explorer.arbitrum.io/address/${deployment.chainAddress}`;
-        deployment.rpcUrl = `https://l3-${config.chainId}.arbitrum.io/rpc`;
+        deployment.explorerUrl = `https://onescan.cc/testnet/address/${deployment.chainAddress}`;
+        deployment.rpcUrl = `https://rpc-subnet-${config.chainId}.onelabs.cc:443`;
 
         config.status = 'deployed';
         configs.set(configId, config);

@@ -81,8 +81,8 @@ export function ContractInteraction({ onInteraction }: ContractInteractionProps)
   }, [chatMessages, isChatLoading])
 
   const isValidAddress = (address: string) => {
-    // Normalize to lowercase first to avoid EIP-55 checksum rejections
-    return ethers.isAddress(address.toLowerCase())
+    // OneChain uses Sui-style 32-byte (64 hex char) addresses
+    return /^0x[0-9a-fA-F]{64}$/.test(address) || /^0x[0-9a-fA-F]{40}$/.test(address)
   }
 
   const fetchContractABI = async () => {
@@ -141,15 +141,15 @@ export function ContractInteraction({ onInteraction }: ContractInteractionProps)
           })
         }
       } catch (backendError: any) {
-        console.warn("Backend discovery failed, trying Etherscan fallback:", backendError.message)
+        console.warn("Backend discovery failed, trying OneScan API fallback:", backendError.message)
       }
     }
 
-    // 2) Fallback: direct Etherscan API (Arbitrum Sepolia)
+    // 2) Fallback: direct OneChain RPC / explorer API
     if (!loaded) {
       try {
         const provider = new ethers.JsonRpcProvider(
-          process.env.NEXT_PUBLIC_ARBITRUM_SEPOLIA_RPC_URL || process.env.NEXT_PUBLIC_RPC_URL || "https://sepolia-rollup.arbitrum.io/rpc"
+          process.env.NEXT_PUBLIC_ONECHAIN_TESTNET_RPC_URL || process.env.NEXT_PUBLIC_RPC_URL || "https://rpc-testnet.onelabs.cc:443"
         )
 
         const code = await provider.getCode(normalizedAddress)
@@ -157,15 +157,16 @@ export function ContractInteraction({ onInteraction }: ContractInteractionProps)
         if (code === "0x") {
           toast({
             title: "Contract Not Found",
-            description: "No contract deployed at this address on Arbitrum Sepolia",
+            description: "No contract deployed at this address on OneChain testnet",
             variant: "destructive",
           })
           setIsLoading(false)
           return
         }
 
-        const apiKey = process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY || "YourApiKeyToken"
-        const apiUrl = `https://api.etherscan.io/v2/api?chainid=421614&module=contract&action=getabi&address=${normalizedAddress}&apikey=${apiKey}`
+        const apiKey = process.env.NEXT_PUBLIC_ONECHAIN_EXPLORER_API_KEY || ""
+        const explorerApiBase = process.env.NEXT_PUBLIC_EXPLORER_API_URL || "https://onescan.cc/testnet/api"
+        const apiUrl = `${explorerApiBase}?module=contract&action=getabi&address=${normalizedAddress}&apikey=${apiKey}`
 
         const response = await fetch(apiUrl)
         const data = await response.json()
@@ -180,8 +181,8 @@ export function ContractInteraction({ onInteraction }: ContractInteractionProps)
             description: `${abi.length} functions loaded`,
           })
         }
-      } catch (etherscanError: any) {
-        console.warn("Etherscan fallback also failed:", etherscanError.message)
+      } catch (explorerApiError: any) {
+        console.warn("OneScan API fallback also failed:", explorerApiError.message)
       }
     }
 
@@ -300,7 +301,7 @@ export function ContractInteraction({ onInteraction }: ContractInteractionProps)
     setExecutingFunction(func.name)
     try {
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_ARBITRUM_SEPOLIA_RPC_URL || process.env.NEXT_PUBLIC_RPC_URL || "https://sepolia-rollup.arbitrum.io/rpc"
+        process.env.NEXT_PUBLIC_ONECHAIN_TESTNET_RPC_URL || process.env.NEXT_PUBLIC_RPC_URL || "https://rpc-testnet.onelabs.cc:443"
       )
       const contract = new ethers.Contract(contractAddress, contractABI, provider)
 
@@ -375,7 +376,7 @@ export function ContractInteraction({ onInteraction }: ContractInteractionProps)
     setExecutingFunction(func.name)
     try {
       const provider = new ethers.JsonRpcProvider(
-        process.env.NEXT_PUBLIC_ARBITRUM_SEPOLIA_RPC_URL || process.env.NEXT_PUBLIC_RPC_URL || "https://sepolia-rollup.arbitrum.io/rpc"
+        process.env.NEXT_PUBLIC_ONECHAIN_TESTNET_RPC_URL || process.env.NEXT_PUBLIC_RPC_URL || "https://rpc-testnet.onelabs.cc:443"
       )
       
       let contract: ethers.Contract
@@ -668,7 +669,7 @@ export function ContractInteraction({ onInteraction }: ContractInteractionProps)
                     <p className="font-mono break-all">{result.result}</p>
                     {result.txHash && (
                       <a
-                        href={`${process.env.NEXT_PUBLIC_EXPLORER_URL || "https://sepolia.etherscan.io"}/tx/${result.txHash}`}
+                        href={`${process.env.NEXT_PUBLIC_EXPLORER_URL || "https://onescan.cc/testnet"}/tx/${result.txHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors mt-1"

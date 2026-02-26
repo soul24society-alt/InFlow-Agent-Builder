@@ -61,7 +61,7 @@ export default function OrbitBuilderPage() {
                 </h1>
               </div>
               <p className="text-sm text-muted-foreground">
-                Create and deploy custom Layer 3 chains on Arbitrum
+                Create and deploy custom subnet chains on OneChain
               </p>
             </div>
             <DropdownMenu modal={false}>
@@ -158,13 +158,13 @@ export default function OrbitBuilderPage() {
           <Accordion type="single" collapsible>
             <AccordionItem value="about" className="border-none">
               <AccordionTrigger className="py-3 hover:no-underline">
-                <span className="text-sm font-medium">About Arbitrum Orbit</span>
+                <span className="text-sm font-medium">About OneChain Subnet Builder</span>
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-4 text-sm text-muted-foreground pt-1">
                   <p>
-                    <strong className="text-foreground font-medium">Arbitrum Orbit</strong> allows you to create your own dedicated Layer 3 (L3)
-                    chains that settle to Arbitrum Layer 2 networks.
+                    <strong className="text-foreground font-medium">OneChain Subnet Builder</strong> allows you to create your own dedicated Layer 3 (L3)
+                    chains that settle to OneChain Layer 2 networks.
                   </p>
 
                   <div>
@@ -175,7 +175,7 @@ export default function OrbitBuilderPage() {
                         'Custom gas tokens and fee structures',
                         'Dedicated throughput and block space',
                         'Lower fees than L2, faster than L1',
-                        'Seamless Arbitrum ecosystem interoperability',
+                        'Seamless OneChain ecosystem interoperability',
                       ].map((item) => (
                         <li key={item} className="flex items-center gap-2">
                           <ChevronRight className="size-3 text-muted-foreground/60 shrink-0" />

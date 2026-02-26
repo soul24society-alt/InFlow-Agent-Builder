@@ -857,8 +857,8 @@ def execute_tool(tool_name: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
     
     # Prepare headers - check if Bearer token is needed
     headers = {}
-    if "api.subgraph.arbitrum.network" in endpoint:
-        bearer_token = os.getenv("ARBITRUM_BEARER_TOKEN")
+    if "api.subgraph.onelabs.cc" in endpoint or "onechain-subgraph" in endpoint:
+        bearer_token = os.getenv("ONECHAIN_BEARER_TOKEN")
         if bearer_token:
             headers["Authorization"] = f"Bearer {bearer_token}"
     

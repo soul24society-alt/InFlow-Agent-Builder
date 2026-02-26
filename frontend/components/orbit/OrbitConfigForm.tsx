@@ -35,7 +35,7 @@ export function OrbitConfigForm({ onDeploymentStart, initialConfig }: OrbitConfi
     name: '',
     chainId: '',
     description: '',
-    parentChain: 'arbitrum-sepolia',
+    parentChain: 'onechain-testnet',
     nativeToken: '',
     dataAvailability: 'anytrust',
     validators: [''],
@@ -55,7 +55,7 @@ export function OrbitConfigForm({ onDeploymentStart, initialConfig }: OrbitConfi
         name: initialConfig.name || '',
         chainId: initialConfig.chainId || '',
         description: initialConfig.chainConfig?.chainName || '',
-        parentChain: initialConfig.parentChain || 'arbitrum-sepolia',
+        parentChain: initialConfig.parentChain || 'onechain-testnet',
         nativeToken: initialConfig.chainConfig?.nativeToken?.symbol || '',
         dataAvailability: 'anytrust',
         validators: initialConfig.validators || [''],
@@ -242,10 +242,9 @@ export function OrbitConfigForm({ onDeploymentStart, initialConfig }: OrbitConfi
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="arbitrum-one">Arbitrum One</SelectItem>
-                  <SelectItem value="arbitrum-sepolia">Arbitrum Sepolia (Testnet)</SelectItem>
-                  <SelectItem value="arbitrum-goerli">Arbitrum Goerli (Testnet)</SelectItem>
-                  <SelectItem value="ethereum">Ethereum Mainnet</SelectItem>
+                  <SelectItem value="onechain-mainnet">OneChain Mainnet</SelectItem>
+                  <SelectItem value="onechain-testnet">OneChain Testnet (Recommended)</SelectItem>
+                  <SelectItem value="onechain-devnet">OneChain Devnet</SelectItem>
                 </SelectContent>
               </Select>
             </div>

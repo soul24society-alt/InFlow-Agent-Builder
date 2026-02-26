@@ -8,7 +8,7 @@ module.exports = {
   ONECHAIN_DEVNET_RPC: process.env.ONECHAIN_DEVNET_RPC || 'https://rpc-devnet.onelabs.cc:443',
   NETWORK_NAME: process.env.ONECHAIN_NETWORK || 'OneChain Testnet',
   ACTIVE_NETWORK: process.env.ONECHAIN_ACTIVE_NETWORK || 'testnet',
-  EXPLORER_BASE_URL: 'https://explorer-testnet.onelabs.cc',
+  EXPLORER_BASE_URL: 'https://onescan.cc/testnet',
   FAUCET_URL: 'https://faucet-testnet.onelabs.cc',
   NATIVE_TOKEN: 'OCT',
   // 1 OCT = 1,000,000,000 MIST (smallest unit)

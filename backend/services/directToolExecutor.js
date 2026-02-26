@@ -7,14 +7,21 @@ const TOOL_ENDPOINTS = {
   fetch_price: { method: 'POST', path: '/price/token' },
   get_balance: { method: 'GET', path: '/transfer/balance/{address}' },
   transfer: { method: 'POST', path: '/transfer' },
-  deploy_erc20: { method: 'POST', path: '/token/deploy' },
-  deploy_erc721: { method: 'POST', path: '/nft/deploy-collection' },
+  deploy_token: { method: 'POST', path: '/token/deploy' },
+  deploy_nft_collection: { method: 'POST', path: '/nft/deploy-collection' },
   mint_nft: { method: 'POST', path: '/nft/mint' },
   get_token_info: { method: 'GET', path: '/token/info/{tokenId}' },
   get_token_balance: { method: 'GET', path: '/token/balance/{tokenId}/{ownerAddress}' },
   get_nft_info: { method: 'GET', path: '/nft/info/{collectionAddress}/{tokenId}' },
   send_email: { method: 'POST', path: '/email/send' },
-  calculate: { method: 'LOCAL' }
+  calculate: { method: 'LOCAL' },
+  condition_check: { method: 'LOCAL' },
+  yes_no_answer: { method: 'LOCAL' },
+  send_webhook: { method: 'POST', path: '/webhook/send' },
+  create_dao: { method: 'POST', path: '/governance/create-dao' },
+  create_proposal: { method: 'POST', path: '/governance/proposal' },
+  vote_on_proposal: { method: 'POST', path: '/governance/vote' },
+  get_proposal: { method: 'GET', path: '/governance/proposal/{proposalId}' }
 };
 
 function mapToolParams(tool, params = {}, fallbackMessage) {
@@ -48,7 +55,7 @@ function mapToolParams(tool, params = {}, fallbackMessage) {
       if (!amount) missing.push('amount');
       break;
     }
-    case 'deploy_erc20': {
+    case 'deploy_token': {
       const privateKey = params.privateKey || params.private_key;
       const name = params.name;
       const symbol = params.symbol;
@@ -62,7 +69,7 @@ function mapToolParams(tool, params = {}, fallbackMessage) {
       if (!initialSupply) missing.push('initialSupply');
       break;
     }
-    case 'deploy_erc721': {
+    case 'deploy_nft_collection': {
       const privateKey = params.privateKey || params.private_key;
       const name = params.name;
       const symbol = params.symbol;
@@ -128,6 +135,75 @@ function mapToolParams(tool, params = {}, fallbackMessage) {
       if (!expression) missing.push('expression');
       break;
     }
+    case 'condition_check': {
+      const expression = params.expression || params.condition;
+      const variables = params.variables || params.values || {};
+      const description = params.description;
+      mapped = { expression, variables, description };
+      if (!expression) missing.push('expression');
+      break;
+    }
+    case 'yes_no_answer': {
+      const question = params.question;
+      const answer = params.answer;
+      mapped = { question, answer };
+      if (!question) missing.push('question');
+      if (!answer) missing.push('answer');
+      break;
+    }
+    case 'send_webhook': {
+      const url = params.url;
+      const payload = params.payload || params.data || {};
+      const method = params.method || 'POST';
+      const headers = params.headers || {};
+      const secret = params.secret;
+      mapped = { url, payload, method, headers };
+      if (secret) mapped.secret = secret;
+      if (!url) missing.push('url');
+      break;
+    }
+    case 'create_dao': {
+      const name = params.name;
+      const description = params.description;
+      const walletAddress = params.walletAddress || params.wallet_address;
+      const votingPeriodDays = params.votingPeriodDays || params.voting_period_days;
+      const quorumPercent = params.quorumPercent || params.quorum_percent;
+      mapped = { name, description, walletAddress };
+      if (votingPeriodDays) mapped.votingPeriodDays = votingPeriodDays;
+      if (quorumPercent) mapped.quorumPercent = quorumPercent;
+      if (!name) missing.push('name');
+      if (!walletAddress) missing.push('walletAddress');
+      break;
+    }
+    case 'create_proposal': {
+      const daoId = params.daoId || params.dao_id;
+      const title = params.title;
+      const description = params.description;
+      const walletAddress = params.walletAddress || params.wallet_address;
+      const actions = params.actions;
+      mapped = { daoId, title, description, walletAddress };
+      if (actions) mapped.actions = actions;
+      if (!daoId) missing.push('daoId');
+      if (!title) missing.push('title');
+      if (!walletAddress) missing.push('walletAddress');
+      break;
+    }
+    case 'vote_on_proposal': {
+      const proposalId = params.proposalId || params.proposal_id;
+      const vote = params.vote || params.answer;
+      const walletAddress = params.walletAddress || params.wallet_address;
+      mapped = { proposalId, vote, walletAddress };
+      if (!proposalId) missing.push('proposalId');
+      if (!vote) missing.push('vote');
+      if (!walletAddress) missing.push('walletAddress');
+      break;
+    }
+    case 'get_proposal': {
+      const proposalId = params.proposalId || params.proposal_id;
+      mapped = { proposalId };
+      if (!proposalId) missing.push('proposalId');
+      break;
+    }
     default:
       break;
   }
@@ -141,7 +217,8 @@ function replacePathParams(path, params) {
     '{address}': 'address',
     '{tokenId}': 'tokenId',
     '{ownerAddress}': 'ownerAddress',
-    '{collectionAddress}': 'collectionAddress'
+    '{collectionAddress}': 'collectionAddress',
+    '{proposalId}': 'proposalId'
   };
 
   Object.entries(replacements).forEach(([placeholder, key]) => {
@@ -267,6 +344,83 @@ function safeCalculate(params) {
   }
 }
 
+function safeConditionCheck(params) {
+  try {
+    const expression = params.expression || '';
+    let variables = params.variables || {};
+
+    if (typeof variables === 'string') {
+      try { variables = JSON.parse(variables); } catch { variables = {}; }
+    }
+    if (typeof variables !== 'object' || variables === null) variables = {};
+
+    let resolved = expression.replace(/\s+/g, ' ').trim();
+
+    const sortedVars = Object.entries(variables).sort((a, b) => b[0].length - a[0].length);
+    sortedVars.forEach(([name, value]) => {
+      const numValue = parseFloat(String(value).replace(/,/g, ''));
+      if (!isNaN(numValue)) {
+        const pattern = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
+        resolved = resolved.replace(pattern, String(numValue));
+      }
+    });
+
+    const allowedChars = /^[0-9+\-*/().eE\s<>=!&|]+$/;
+    if (!allowedChars.test(resolved)) {
+      return {
+        success: false,
+        tool: 'condition_check',
+        error: `Invalid characters in condition expression: '${resolved}'`
+      };
+    }
+
+    const result = Function(`"use strict"; return !!(${resolved});`)();
+    return {
+      success: true,
+      tool: 'condition_check',
+      result: {
+        expression,
+        resolved_expression: resolved,
+        result: result,
+        value: result,
+        description: params.description || 'Condition evaluation'
+      }
+    };
+  } catch (error) {
+    return {
+      success: false,
+      tool: 'condition_check',
+      error: `Condition check error: ${error.message}`
+    };
+  }
+}
+
+function safeYesNoAnswer(params) {
+  const question = params.question || 'Question';
+  const raw = String(params.answer || '').toLowerCase().trim();
+  const isYes = raw === 'yes' || raw === 'true' || raw === 'y' || raw === '1';
+  const isNo = raw === 'no' || raw === 'false' || raw === 'n' || raw === '0';
+
+  if (!isYes && !isNo) {
+    return {
+      success: false,
+      tool: 'yes_no_answer',
+      error: `Invalid answer '${params.answer}'. Must be yes/no/true/false.`
+    };
+  }
+
+  return {
+    success: true,
+    tool: 'yes_no_answer',
+    result: {
+      question,
+      answer: isYes ? 'yes' : 'no',
+      value: isYes,
+      bool: isYes
+    }
+  };
+}
+
 async function executeToolStep(step, fallbackMessage) {
   const { tool, parameters } = step;
   const mapping = mapToolParams(tool, parameters, fallbackMessage);
@@ -294,6 +448,20 @@ async function executeToolStep(step, fallbackMessage) {
     return {
       tool_call: { tool, parameters: mapping.mapped },
       result: safeCalculate(mapping.mapped)
+    };
+  }
+
+  if (config.method === 'LOCAL' && tool === 'condition_check') {
+    return {
+      tool_call: { tool, parameters: mapping.mapped },
+      result: safeConditionCheck(mapping.mapped)
+    };
+  }
+
+  if (config.method === 'LOCAL' && tool === 'yes_no_answer') {
+    return {
+      tool_call: { tool, parameters: mapping.mapped },
+      result: safeYesNoAnswer(mapping.mapped)
     };
   }
 
@@ -507,15 +675,15 @@ function formatToolResponse(toolResults) {
         return `Current prices: ${formatted}.`;
       }
       case 'get_balance': {
-        return `Balance for ${payload.address}: ${payload.balance} ETH.`;
+        return `Balance for ${payload.address}: ${payload.balance} OCT.`;
       }
       case 'transfer': {
         return `Transfer completed. Tx: ${payload.transactionHash || 'unknown'}.`;
       }
-      case 'deploy_erc20': {
+      case 'deploy_token': {
         return `Token deployed. Token ID: ${payload.tokenId || 'unknown'}. Tx: ${payload.transactionHash || 'unknown'}.`;
       }
-      case 'deploy_erc721': {
+      case 'deploy_nft_collection': {
         return `NFT collection deployed. Address: ${payload.collectionAddress || 'unknown'}. Tx: ${payload.transactionHash || 'unknown'}.`;
       }
       case 'mint_nft': {
@@ -535,6 +703,27 @@ function formatToolResponse(toolResults) {
       }
       case 'calculate': {
         return `Calculation result: ${payload.result}.`;
+      }
+      case 'condition_check': {
+        return `Condition "${payload.expression}": ${payload.value === true ? 'TRUE ✓' : 'FALSE ✗'}.`;
+      }
+      case 'yes_no_answer': {
+        return `Question: "${payload.question}" — Answer: ${payload.answer.toUpperCase()} (${payload.bool}).`;
+      }
+      case 'send_webhook': {
+        return `Webhook sent to ${payload.url} — status ${payload.responseStatus}.`;
+      }
+      case 'create_dao': {
+        return `DAO "${payload.dao?.name || 'unknown'}" created. ID: ${payload.dao?.daoId || 'unknown'}.`;
+      }
+      case 'create_proposal': {
+        return `Proposal "${payload.proposal?.title || 'unknown'}" created. ID: ${payload.proposal?.proposalId || 'unknown'}. Voting ends ${payload.proposal?.endsAt || 'unknown'}.`;
+      }
+      case 'vote_on_proposal': {
+        return `Vote "${payload.vote?.toUpperCase() || 'unknown'}" cast on proposal ${payload.proposalId}. Tally: Yes ${payload.tally?.yes || 0}, No ${payload.tally?.no || 0}.`;
+      }
+      case 'get_proposal': {
+        return `Proposal "${payload.proposal?.title || 'unknown'}" — Status: ${payload.proposal?.status || 'unknown'}. Tally: Yes ${payload.proposal?.votes?.yes || 0}, No ${payload.proposal?.votes?.no || 0} (${payload.stats?.yesPercent || '0%'} yes).`;
       }
       default:
         return `Executed ${tool}.`;

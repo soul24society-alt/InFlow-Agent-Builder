@@ -1,8 +1,6 @@
-const { ethers } = require('ethers');
-
 /**
- * Arbitrum Orbit L3 Deployer Utility
- * Handles the actual deployment of L3 chains using Arbitrum Orbit SDK
+ * OneChain Subnet Deployer Utility
+ * Handles the deployment of OneChain subnets (L2/L3 Move-based chains)
  */
 
 class OrbitDeployer {
@@ -19,13 +17,11 @@ class OrbitDeployer {
     try {
       // Get RPC URL based on parent chain
       const rpcUrl = this.getParentChainRPC(config.parentChain);
+      this.rpcUrl = rpcUrl;
       
-      // Create provider
-      this.provider = new ethers.JsonRpcProvider(rpcUrl);
-      
-      // Initialize wallet if private key is available
-      if (process.env.DEPLOYER_PRIVATE_KEY) {
-        this.wallet = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, this.provider);
+      // Initialize wallet key if available
+      if (process.env.BACKEND_WALLET_SECRET_KEY || process.env.DEPLOYER_PRIVATE_KEY) {
+        this.walletKey = process.env.BACKEND_WALLET_SECRET_KEY || process.env.DEPLOYER_PRIVATE_KEY;
       }
       
       return true;
@@ -40,13 +36,12 @@ class OrbitDeployer {
    */
   getParentChainRPC(parentChain) {
     const rpcUrls = {
-      'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
-      'arbitrum-sepolia': process.env.ARBITRUM_SEPOLIA_RPC_URL || 'https://sepolia-rollup.arbitrum.io/rpc',
-      'arbitrum-goerli': 'https://goerli-rollup.arbitrum.io/rpc',
-      'ethereum': 'https://eth.llamarpc.com'
+      'onechain-testnet': process.env.ONECHAIN_TESTNET_RPC_URL || 'https://rpc-testnet.onelabs.cc:443',
+      'onechain-mainnet': process.env.ONECHAIN_MAINNET_RPC_URL || 'https://rpc.onelabs.cc:443',
+      'onechain-devnet': process.env.ONECHAIN_DEVNET_RPC_URL || 'https://rpc-devnet.onelabs.cc:443'
     };
     
-    return rpcUrls[parentChain] || rpcUrls['arbitrum-sepolia'];
+    return rpcUrls[parentChain] || rpcUrls['onechain-testnet'];
   }
 
   /**
@@ -156,8 +151,8 @@ class OrbitDeployer {
   }
 
   /**
-   * Deploy core Orbit contracts
-   * In production, this would use @arbitrum/orbit-sdk
+   * Deploy core subnet contracts
+   * In production, this would use the OneChain Move SDK
    */
   async deployCoreContracts(config) {
     await this.delay(3000);
@@ -222,22 +217,21 @@ class OrbitDeployer {
    */
   getExplorerUrl(parentChain, address) {
     const explorers = {
-      'arbitrum-one': 'https://arbiscan.io',
-      'arbitrum-sepolia': 'https://sepolia.arbiscan.io',
-      'arbitrum-goerli': 'https://goerli.arbiscan.io',
-      'ethereum': 'https://etherscan.io'
+      'onechain-testnet': 'https://onescan.cc/testnet',
+      'onechain-mainnet': 'https://onescan.cc',
+      'onechain-devnet': 'https://onescan.cc/devnet'
     };
     
-    const baseUrl = explorers[parentChain] || explorers['arbitrum-sepolia'];
+    const baseUrl = explorers[parentChain] || explorers['onechain-testnet'];
     return `${baseUrl}/address/${address}`;
   }
 
   /**
-   * Build RPC URL for the L3 chain
+   * Build RPC URL for the subnet chain
    */
   buildRpcUrl(chainId) {
-    // In production, this would be the actual L3 RPC endpoint
-    return `https://l3-${chainId}.arbitrum.io/rpc`;
+    // In production, this would be the actual subnet RPC endpoint
+    return `https://rpc-subnet-${chainId}.onelabs.cc:443`;
   }
 
   /**
@@ -254,21 +248,17 @@ class OrbitDeployer {
     try {
       await this.initialize(config);
       
-      // Get current gas price
-      const feeData = await this.provider.getFeeData();
-      const gasPrice = feeData.gasPrice || ethers.parseUnits('10', 'gwei');
-      
-      // Estimate gas needed (rough estimate)
-      const estimatedGas = 5000000n; // 5M gas
-      
-      const costInWei = gasPrice * estimatedGas;
-      const costInEth = ethers.formatEther(costInWei);
+      // Rough estimate for OneChain subnet deployment cost in MIST (1 OCT = 1e9 MIST)
+      const gasPrice = 1000n; // 1000 MIST per unit
+      const estimatedGas = 5000000n; // 5M computation units
+      const costInMist = gasPrice * estimatedGas;
+      const costInOct = Number(costInMist) / 1e9;
       
       return {
-        gasPrice: ethers.formatUnits(gasPrice, 'gwei'),
+        gasPrice: gasPrice.toString(),
         estimatedGas: estimatedGas.toString(),
-        costInEth,
-        costInWei: costInWei.toString()
+        costInOct: costInOct.toString(),
+        costInMist: costInMist.toString()
       };
       
     } catch (error) {
@@ -279,18 +269,18 @@ class OrbitDeployer {
 }
 
 /**
- * Orbit SDK Integration Helper
- * This would use the actual @arbitrum/orbit-sdk package in production
+ * OneChain Subnet SDK Integration Helper
+ * This would use the OneChain Move SDK in production
  */
 class OrbitSDKHelper {
   /**
-   * Check if Orbit SDK is available
+   * Check if OneChain Move SDK is available
    */
   static isSDKAvailable() {
     try {
-      // In production, check if @arbitrum/orbit-sdk is installed
-      // require('@arbitrum/orbit-sdk');
-      return false; // Currently using mock implementation
+      // In production, check if @mysten/sui is installed and OneChain-compatible
+      require('@mysten/sui');
+      return true;
     } catch (error) {
       return false;
     }
@@ -319,11 +309,10 @@ class OrbitSDKHelper {
       validators: config.validators,
       sequencer: config.sequencerAddress,
       batchPoster: config.batchPosterAddress,
-      challengePeriodBlocks: Math.floor(config.challengePeriod / 12), // Convert seconds to blocks
+      challengePeriodEpochs: Math.floor(config.challengePeriod / 2000), // Convert seconds to epochs
       stakeToken: config.stakeToken,
-      baseStake: ethers.parseEther('1'), // 1 ETH or token
-      extraChallengeTimeBlocks: 0,
-      wasmModuleRoot: '0x0000000000000000000000000000000000000000000000000000000000000000'
+      baseStake: 1_000_000_000n, // 1 OCT in MIST
+      moveModuleRoot: '0x0000000000000000000000000000000000000000000000000000000000000000'
     };
   }
 
@@ -332,13 +321,12 @@ class OrbitSDKHelper {
    */
   static getParentChainId(parentChain) {
     const chainIds = {
-      'arbitrum-one': 42161,
-      'arbitrum-sepolia': 421614,
-      'arbitrum-goerli': 421613,
-      'ethereum': 1
+      'onechain-testnet': 1,
+      'onechain-mainnet': 2,
+      'onechain-devnet': 3
     };
     
-    return chainIds[parentChain] || chainIds['arbitrum-sepolia'];
+    return chainIds[parentChain] || chainIds['onechain-testnet'];
   }
 }
 

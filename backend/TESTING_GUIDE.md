@@ -42,8 +42,8 @@ BACKEND_URL=http://localhost:3000
 
 You'll need:
 - A wallet private key with 0x prefix
-- Some Arbitrum Sepolia ETH for gas fees
-- Get testnet ETH from: https://faucet.quicknode.com/arbitrum/sepolia
+- Some OCT for gas fees
+- Get testnet ETH from: https://faucet.onelabs.cc
 
 ---
 
@@ -61,7 +61,7 @@ Expected output:
 🚀 n8nrollup Backend Server
 ==================================================
 📡 Server running on port 3000
-🌐 Network: Arbitrum Sepolia
+🌐 Network: OneChain Testnet
 🏭 TokenFactory: 0xYourAddress
 🎨 NFTFactory: 0xYourAddress
 ```
@@ -96,8 +96,8 @@ curl http://localhost:3000/health
   "data": {
     "status": "healthy",
     "timestamp": "2025-11-23T10:30:00.000Z",
-    "network": "Arbitrum Sepolia",
-    "rpc": "https://sepolia-rollup.arbitrum.io/rpc",
+    "network": "OneChain Testnet",
+    "rpc": "https://rpc-testnet.onelabs.cc:443",
     "contracts": {
       "tokenFactory": "0xYourAddress",
       "nftFactory": "0xYourAddress"
@@ -116,7 +116,7 @@ curl http://localhost:8000/health
 {
   "status": "healthy",
   "service": "AI Agent Builder",
-  "blockchain": "Arbitrum Sepolia",
+  "blockchain": "OneChain Testnet",
   "ai_model": "Google Gemini 2.0 Flash",
   "backend_url": "http://localhost:3000"
 }
@@ -158,7 +158,7 @@ curl -X POST http://localhost:3000/token/deploy \
       "totalSupply": "1000000"
     },
     "explorerUrl": "https://sepolia.arbiscan.io/address/0xFactory...",
-    "transactionUrl": "https://sepolia.arbiscan.io/tx/0x..."
+    "transactionUrl": "https://onescan.cc/testnet/tx/0x..."
   }
 }
 ```
@@ -196,7 +196,7 @@ curl -X POST http://localhost:8000/agent/chat \
   -H "Content-Type: application/json" \
   -d '{
     "tools": [
-      {"tool": "deploy_erc20", "next_tool": null}
+      {"tool": "deploy_token", "next_tool": null}
     ],
     "user_message": "Deploy a token called MyToken with symbol MTK and 1 million initial supply",
     "private_key": "0xYourPrivateKey"
@@ -206,10 +206,10 @@ curl -X POST http://localhost:8000/agent/chat \
 **Expected Response:**
 ```json
 {
-  "agent_response": "I've successfully deployed your token MyToken (MTK) with 1 million initial supply. The token ID is 0 and has been confirmed on Arbitrum Sepolia. You can view the transaction at https://sepolia.arbiscan.io/tx/0x...",
+  "agent_response": "I've successfully deployed your token MyToken (MTK) with 1 million initial supply. The token ID is 0 and has been confirmed on OneChain Testnet. You can view the transaction at https://onescan.cc/testnet/tx/0x...",
   "tool_calls": [
     {
-      "tool": "deploy_erc20",
+      "tool": "deploy_token",
       "parameters": {
         "privateKey": "0x...",
         "name": "MyToken",
@@ -221,7 +221,7 @@ curl -X POST http://localhost:8000/agent/chat \
   "results": [
     {
       "success": true,
-      "tool": "deploy_erc20",
+      "tool": "deploy_token",
       "result": {
         "success": true,
         "data": {
@@ -241,7 +241,7 @@ curl -X POST http://localhost:8000/agent/chat \
   -H "Content-Type: application/json" \
   -d '{
     "tools": [
-      {"tool": "deploy_erc20", "next_tool": "transfer"},
+      {"tool": "deploy_token", "next_tool": "transfer"},
       {"tool": "transfer", "next_tool": null}
     ],
     "user_message": "Deploy a token called RewardToken (RWD, 1 million supply) and send 1000 tokens to 0xRecipientAddress",
@@ -290,7 +290,7 @@ curl -X POST http://localhost:8000/agent/chat \
   -H "Content-Type: application/json" \
   -d '{
     "tools": [
-      {"tool": "deploy_erc721", "next_tool": null}
+      {"tool": "deploy_nft_collection", "next_tool": null}
     ],
     "user_message": "Deploy an NFT collection called MyNFTs with symbol MNFT and base URI ipfs://QmExample/",
     "private_key": "0xYourPrivateKey"
@@ -311,8 +311,8 @@ curl http://localhost:8000/tools
   "tools": [
     "transfer",
     "get_balance",
-    "deploy_erc20",
-    "deploy_erc721",
+    "deploy_token",
+    "deploy_nft_collection",
     "fetch_price",
     "get_token_info",
     "get_token_balance",
@@ -320,9 +320,9 @@ curl http://localhost:8000/tools
     "get_nft_info"
   ],
   "details": {
-    "deploy_erc20": {
-      "name": "deploy_erc20",
-      "description": "Deploy a new ERC-20 token...",
+    "deploy_token": {
+      "name": "deploy_token",
+      "description": "Deploy a new Move fungible token...",
       "endpoint": "http://localhost:3000/token/deploy",
       "method": "POST"
     },
@@ -363,16 +363,16 @@ NFT_FACTORY_ADDRESS=0xYourDeployedAddress
 ```
 
 ### Problem: "Insufficient balance for gas fees"
-**Solution:** Fund your wallet with Arbitrum Sepolia ETH
-- Faucet: https://faucet.quicknode.com/arbitrum/sepolia
-- Or bridge from Sepolia: https://bridge.arbitrum.io/
+**Solution:** Fund your wallet with OCT
+- Faucet: https://faucet.onelabs.cc
+- Or bridge from Sepolia: https://onescan.cc/testnet
 
 ### Problem: AI returns "I don't have access to that tool"
 **Solution:** Check the tools array in your request
 ```json
 {
   "tools": [
-    {"tool": "deploy_erc20", "next_tool": null}  // Must match exact tool name
+    {"tool": "deploy_token", "next_tool": null}  // Must match exact tool name
   ]
 }
 ```
@@ -424,7 +424,7 @@ NFT_FACTORY_ADDRESS=0xYourDeployedAddress
 ```bash
 # 1. Deploy
 curl -X POST http://localhost:8000/agent/chat -H "Content-Type: application/json" \
-  -d '{"tools": [{"tool": "deploy_erc20"}], "user_message": "Deploy MyToken (MTK, 1M)", "private_key": "0x..."}'
+  -d '{"tools": [{"tool": "deploy_token"}], "user_message": "Deploy MyToken (MTK, 1M)", "private_key": "0x..."}'
 
 # 2. Get Info (use tokenId from step 1)
 curl http://localhost:3000/token/info/0
@@ -441,7 +441,7 @@ curl http://localhost:3000/token/balance/0/0xRecipient
 ```bash
 # 1. Deploy Collection
 curl -X POST http://localhost:8000/agent/chat -H "Content-Type: application/json" \
-  -d '{"tools": [{"tool": "deploy_erc721"}], "user_message": "Deploy NFT collection MyNFTs (MNFT) with base URI ipfs://Qm.../", "private_key": "0x..."}'
+  -d '{"tools": [{"tool": "deploy_nft_collection"}], "user_message": "Deploy NFT collection MyNFTs (MNFT) with base URI ipfs://Qm.../", "private_key": "0x..."}'
 
 # 2. Mint NFT (use collectionAddress from step 1)
 curl -X POST http://localhost:3000/nft/mint -H "Content-Type: application/json" \

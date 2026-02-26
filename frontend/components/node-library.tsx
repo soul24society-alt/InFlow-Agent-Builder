@@ -14,6 +14,13 @@ import {
   CheckCircle,
   XCircle,
   Mail,
+  ToggleLeft,
+  ThumbsUp,
+  Webhook,
+  Users,
+  ScrollText,
+  Vote,
+  ClipboardList,
 } from "lucide-react"
 
 const toolTypes = [
@@ -30,15 +37,15 @@ const toolTypes = [
     icon: Wallet,
   },
   {
-    type: "deploy_erc20",
-    label: "Deploy ERC-20",
-    description: "Deploy ERC-20 token",
+    type: "deploy_token",
+    label: "Deploy Token",
+    description: "Deploy Move fungible token",
     icon: Coins,
   },
   {
-    type: "deploy_erc721",
-    label: "Deploy ERC-721",
-    description: "Deploy ERC-721 NFT",
+    type: "deploy_nft_collection",
+    label: "Deploy NFT",
+    description: "Deploy Move NFT collection",
     icon: ImageIcon,
   },
   {
@@ -48,9 +55,9 @@ const toolTypes = [
     icon: TrendingUp,
   },
   {
-    type: "wrap_eth",
-    label: "Wrap ETH",
-    description: "Convert ETH ↔ WETH",
+    type: "wrap_oct",
+    label: "Wrap OCT",
+    description: "Wrap OCT tokens",
     icon: Repeat,
   },
   {
@@ -88,6 +95,48 @@ const toolTypes = [
     label: "Send Email",
     description: "Send email notifications",
     icon: Mail,
+  },
+  {
+    type: "condition_check",
+    label: "Condition Check",
+    description: "Evaluate true/false condition",
+    icon: ToggleLeft,
+  },
+  {
+    type: "yes_no_answer",
+    label: "Yes / No",
+    description: "Record a yes or no decision",
+    icon: ThumbsUp,
+  },
+  {
+    type: "send_webhook",
+    label: "Send Webhook",
+    description: "POST payload to a webhook URL",
+    icon: Webhook,
+  },
+  {
+    type: "create_dao",
+    label: "Create DAO",
+    description: "Deploy on-chain governance DAO",
+    icon: Users,
+  },
+  {
+    type: "create_proposal",
+    label: "Create Proposal",
+    description: "Submit a governance proposal",
+    icon: ScrollText,
+  },
+  {
+    type: "vote_on_proposal",
+    label: "Vote",
+    description: "Cast a yes/no/abstain vote",
+    icon: Vote,
+  },
+  {
+    type: "get_proposal",
+    label: "Get Proposal",
+    description: "Fetch proposal details & tally",
+    icon: ClipboardList,
   },
 ]
 

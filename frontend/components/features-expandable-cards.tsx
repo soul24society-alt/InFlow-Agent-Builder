@@ -387,11 +387,11 @@ const cards = [
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
                 <span className="text-slate-900">•</span>
-                <span>Ethereum, Polygon, Arbitrum, Optimism</span>
+                <span>OneChain (Move VM), Sui</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-slate-900">•</span>
-                <span>BSC, Avalanche, Fantom, Cronos</span>
+                <span>OneChain Testnet, Mainnet, Devnet</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-slate-900">•</span>

@@ -99,7 +99,7 @@ export function PaymentAgreementModal({ open, onOpenChange, onAccepted }: Paymen
               <h4 className="font-semibold mb-2">1. Payment Overview</h4>
               <p className="text-muted-foreground">
                 BlockOps offers a mix of free and paid tools for blockchain automation. By accepting these terms, 
-                you agree to pay for premium tools using USDC (USD Coin) on the Arbitrum Sepolia network.
+                you agree to pay for premium tools using USDC (USD Coin) on the OneChain testnet network.
               </p>
             </section>
 
@@ -151,7 +151,7 @@ export function PaymentAgreementModal({ open, onOpenChange, onAccepted }: Paymen
             <section>
               <h4 className="font-semibold mb-2">6. Network & Fees</h4>
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                <li>All payments must be made on <strong>Arbitrum Sepolia</strong> testnet</li>
+                <li>All payments must be made on <strong>OneChain Testnet</strong></li>
                 <li>You are responsible for network gas fees</li>
                 <li>Gas fees are separate from tool payment amounts</li>
                 <li>Ensure you have enough ETH for gas fees before initiating payment</li>

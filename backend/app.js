@@ -14,6 +14,8 @@ const walletRoutes = require('./routes/walletRoutes');
 const allowanceRoutes = require('./routes/allowanceRoutes');
 const contractChatRoutes = require('./routes/contractChatRoutes');
 const emailRoutes = require('./routes/emailRoutes');
+const webhookRoutes = require('./routes/webhookRoutes');
+const governanceRoutes = require('./routes/governanceRoutes');
 
 // Initialize Express app
 const app = express();
@@ -52,6 +54,8 @@ app.use('/wallet', walletRoutes);
 app.use('/allowance', allowanceRoutes);
 app.use('/contract-chat', contractChatRoutes);
 app.use('/email', emailRoutes);
+app.use('/webhook', webhookRoutes);
+app.use('/governance', governanceRoutes);
 
 // Legacy / convenience routes
 app.post('/deploy-token', require('./controllers/tokenController').deployToken);

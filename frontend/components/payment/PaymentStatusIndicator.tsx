@@ -247,7 +247,7 @@ export function PaymentStatusIndicator({
             <div className="flex items-center gap-2 pt-2 border-t">
               <span className="text-xs text-muted-foreground">Transaction:</span>
               <a
-                href={`https://sepolia.arbiscan.io/tx/${paymentHash || details?.payment_hash}`}
+                href={`https://onescan.cc/testnet/tx/${paymentHash || details?.payment_hash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-xs text-primary hover:underline font-mono"

@@ -1,7 +1,7 @@
 {
   "name": "n8nrollup-backend",
   "version": "1.0.0",
-  "description": "Backend API for Arbitrum Sepolia blockchain interactions with Stylus contracts",
+  "description": "Backend API for OneChain blockchain interactions with Move contracts",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -9,7 +9,7 @@
     "test": "node test.js"
   },
   "keywords": [
-    "arbitrum",
+    "onechain",
     "stylus",
     "blockchain",
     "erc20",

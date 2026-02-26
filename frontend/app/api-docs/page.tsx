@@ -124,7 +124,7 @@ export default function ApiDocs() {
   -H "Content-Type: application/json" \\
   -d '{
     "tools": [
-      {"tool": "deploy_erc20", "next_tool": null}
+      {"tool": "deploy_token", "next_tool": null}
     ],
     "user_message": "Deploy a token called MyToken",
     "private_key": "YOUR_PRIVATE_KEY"
@@ -138,7 +138,7 @@ export default function ApiDocs() {
   -H "Content-Type: application/json" \\
   -d '{
     "tools": [
-      {"tool": "deploy_erc20", "next_tool": null}
+      {"tool": "deploy_token", "next_tool": null}
     ],
     "user_message": "Deploy a token called MyToken",
     "private_key": "YOUR_PRIVATE_KEY"
@@ -171,7 +171,7 @@ export default function ApiDocs() {
   },
   body: JSON.stringify({
     tools: [
-      { tool: 'deploy_erc20', next_tool: null }
+      { tool: 'deploy_token', next_tool: null }
     ],
     user_message: 'Deploy a token called MyToken',
     private_key: 'YOUR_PRIVATE_KEY'
@@ -192,7 +192,7 @@ console.log(data);`}</code>
   },
   body: JSON.stringify({
     tools: [
-      { tool: 'deploy_erc20', next_tool: null }
+      { tool: 'deploy_token', next_tool: null }
     ],
     user_message: 'Deploy a token called MyToken',
     private_key: 'YOUR_PRIVATE_KEY'

@@ -53,7 +53,7 @@ export class PaymentService {
 
     // Initialize blockchain provider
     this.provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_ARBITRUM_SEPOLIA_RPC || 'https://sepolia-rollup.arbitrum.io/rpc'
+      process.env.NEXT_PUBLIC_ONECHAIN_TESTNET_RPC_URL || 'https://rpc-testnet.onelabs.cc:443'
     );
 
     // Initialize contract

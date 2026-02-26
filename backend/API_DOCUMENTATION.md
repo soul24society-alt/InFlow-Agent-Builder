@@ -19,7 +19,7 @@
 ### Prerequisites
 - Node.js (v16 or higher)
 - npm or yarn
-- Arbitrum Sepolia testnet access
+- OneChain Testnet access
 - Deployed Stylus contracts (TokenFactory & NFTFactory)
 
 ### Installation
@@ -145,8 +145,8 @@ GET /health
   "data": {
     "status": "healthy",
     "timestamp": "2025-11-23T10:30:00.000Z",
-    "network": "Arbitrum Sepolia",
-    "rpc": "https://sepolia-rollup.arbitrum.io/rpc",
+    "network": "OneChain Testnet",
+    "rpc": "https://rpc-testnet.onelabs.cc:443",
     "contracts": {
       "tokenFactory": "0xYourTokenFactoryAddress",
       "nftFactory": "0xYourNFTFactoryAddress"
@@ -241,7 +241,7 @@ GET /token/info/0
     "totalSupply": "1000000.0",
     "totalSupplyRaw": "1000000000000000000000000",
     "creator": "0xCreatorAddress",
-    "network": "Arbitrum Sepolia"
+    "network": "OneChain Testnet"
   }
 }
 ```
@@ -274,7 +274,7 @@ GET /token/balance/0/0xOwnerAddress
     "balance": "1000000.0",
     "balanceRaw": "1000000000000000000000000",
     "decimals": 18,
-    "network": "Arbitrum Sepolia"
+    "network": "OneChain Testnet"
   }
 }
 ```
@@ -405,7 +405,7 @@ GET /nft/info/0xCollectionAddress/1
       "symbol": "MNFT",
       "totalSupply": "5"
     },
-    "network": "Arbitrum Sepolia"
+    "network": "OneChain Testnet"
   }
 }
 ```
@@ -513,7 +513,7 @@ GET /transfer/balance/0xYourAddress
     "address": "0xYourAddress",
     "balance": "1.5",
     "balanceWei": "1500000000000000000",
-    "network": "Arbitrum Sepolia"
+    "network": "OneChain Testnet"
   }
 }
 ```
@@ -944,7 +944,7 @@ NEXT_PUBLIC_API_URL=https://your-backend-api.com
 ### 2. Insufficient Balance
 **Error:** `Insufficient balance for gas fees`
 
-**Solution:** Fund your wallet with Arbitrum Sepolia ETH from a faucet
+**Solution:** Fund your wallet with OCT from the OneChain faucet
 
 ### 3. Private Key Format
 **Error:** `Invalid private key`
@@ -965,7 +965,7 @@ NEXT_PUBLIC_API_URL=https://your-backend-api.com
 
 ## Rate Limits & Best Practices
 
-1. **RPC Rate Limits:** Arbitrum Sepolia public RPC has rate limits. Consider using a dedicated RPC provider for production.
+1. **RPC Rate Limits:** OneChain Testnet public RPC has rate limits. Consider using a dedicated RPC provider for production.
 
 2. **Private Key Security:** Never commit private keys to version control. Use environment variables.
 
@@ -988,4 +988,4 @@ For issues or questions:
 
 **Last Updated:** November 23, 2025  
 **API Version:** 1.0.0  
-**Network:** Arbitrum Sepolia Testnet
+**Network:** OneChain Testnet

@@ -89,7 +89,7 @@ Configuration for tool pricing.
 
 **Pre-seeded with:**
 - 3 free tools (transfer, get_balance, fetch_price)
-- 13 paid tools (deploy_erc20: $5, swap: $1, etc.)
+- 13 paid tools (deploy_token: $5, swap: $1, etc.)
 
 #### 4. `ai_generation_quotas`
 Tracks daily free AI workflow generation quotas.
@@ -226,7 +226,7 @@ INSERT INTO payments (
   5.00, 
   '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d', 
   'USDC', 
-  'deploy_erc20', 
+  'deploy_token', 
   'confirmed'
 );
 ```
