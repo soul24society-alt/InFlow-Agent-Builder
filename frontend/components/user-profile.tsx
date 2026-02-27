@@ -32,7 +32,7 @@ export function UserProfile({ onLogout }: UserProfileProps) {
       return dbUser.wallet_address
     }
     
-    // If wallet login, use Privy wallet address
+    // Fallback to connected OneWallet address
     if (isWalletLogin && privyWalletAddress) {
       return privyWalletAddress
     }

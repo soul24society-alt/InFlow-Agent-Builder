@@ -4,13 +4,14 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth"
+import { ConnectModal } from "@mysten/dapp-kit"
 import { ArrowRight, Bot, Loader2 } from "lucide-react"
 import { UserProfile } from "@/components/user-profile"
 import { PrivateKeySetupModal } from "@/components/private-key-setup-modal"
 import FeaturesExpandableCards from "@/components/features-expandable-cards"
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from "@/components/ui/animated-modal"
 import { motion, useInView, useSpring } from "motion/react"
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState } from "react"
 import Lenis from 'lenis'
 
 
@@ -56,8 +57,8 @@ function NumberTicker({
 }
 
 export default function Home() {
-  const { ready, authenticated, login, loading, logout, user, showPrivateKeySetup, setShowPrivateKeySetup, syncUser } = useAuth()
-  const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const { ready, authenticated, loading, logout, user, showPrivateKeySetup, setShowPrivateKeySetup, syncUser } = useAuth()
+  const [connectModalOpen, setConnectModalOpen] = useState(false)
   const [loadingLink, setLoadingLink] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -84,17 +85,6 @@ export default function Home() {
     }
   }, [])
 
-  const handleGetStarted = useCallback(async () => {
-    console.log('Get Started clicked!')
-    setIsLoggingIn(true)
-    try {
-      await login()
-    } catch (error) {
-      console.error('Login failed:', error)
-    } finally {
-      setIsLoggingIn(false)
-    }
-  }, [login])
 
   if (!ready || loading) {
     return (
@@ -174,26 +164,22 @@ export default function Home() {
             <div className="flex items-center gap-2">
               {/* Connect Wallet / Profile */}
               {!authenticated ? (
-                <Button 
-                  onClick={handleGetStarted}
-                  variant="outline" 
-                  size="sm"
-                  disabled={isLoggingIn}
-                  className="text-slate-900 border-slate-200 hover:bg-slate-50 font-medium text-xs sm:text-sm px-3 sm:px-4"
-                >
-                  {isLoggingIn ? (
-                    <>
-                      <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                      <span className="hidden sm:inline">Connecting</span>
-                      <span className="sm:hidden">...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="hidden sm:inline">Connect Wallet</span>
-                      <span className="sm:hidden">Connect</span>
-                    </>
-                  )}
-                </Button>
+                <>
+                  <ConnectModal
+                    open={connectModalOpen}
+                    onOpenChange={setConnectModalOpen}
+                    trigger={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-slate-900 border-slate-200 hover:bg-slate-50 font-medium text-xs sm:text-sm px-3 sm:px-4"
+                      >
+                        <span className="hidden sm:inline">Connect Wallet</span>
+                        <span className="sm:hidden">Connect</span>
+                      </Button>
+                    }
+                  />
+                </>
               ) : (
                 <UserProfile onLogout={logout} />
               )}
@@ -307,19 +293,11 @@ export default function Home() {
             ) : (
               <>
                 <Button 
-                  onClick={handleGetStarted}
+                  onClick={() => setConnectModalOpen(true)}
                   size="lg" 
-                  disabled={isLoggingIn}
                   className="bg-slate-900 hover:bg-slate-800 text-white font-medium px-6 sm:px-8 rounded-lg w-full sm:w-auto"
                 >
-                  {isLoggingIn ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                      Connecting...
-                    </>
-                  ) : (
-                    "Get Started"
-                  )}
+                  Get Started
                 </Button>
               </>
             )}

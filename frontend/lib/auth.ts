@@ -1,136 +1,74 @@
 'use client'
 
 import { useCurrentAccount, useDisconnectWallet } from '@mysten/dapp-kit'
-import { useEffect, useState } from 'react'
-import { supabase, type User } from './supabase'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { type User } from './supabase'
 
 export function useAuth() {
   const account = useCurrentAccount()
   const { mutate: disconnectWallet } = useDisconnectWallet()
+  const address = account?.address ?? null
 
   const ready = true
-  const authenticated = !!account
-  const user = account ? { id: account.address, address: account.address } : null
+  const authenticated = !!address
+  // Stable user object — only recreated when address actually changes
+  const user = useMemo(
+    () => (address ? { id: address, address } : null),
+    [address]
+  )
   const isWalletLogin = authenticated
-  const privyWalletAddress = account?.address ?? null
+  const privyWalletAddress = address
 
   const [dbUser, setDbUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [showPrivateKeySetup, setShowPrivateKeySetup] = useState(false)
   const [hasCheckedPrivateKey, setHasCheckedPrivateKey] = useState(false)
+  const syncingRef = useRef(false)
 
   useEffect(() => {
-    if (ready && authenticated && user) {
+    if (address) {
       syncUser()
     } else {
       setDbUser(null)
       setLoading(false)
-      // Reset the check when user logs out
       setHasCheckedPrivateKey(false)
     }
+    // address is the only stable primitive dep we need
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, authenticated, user])
+  }, [address])
 
   const syncUser = async () => {
-    if (!user?.id) {
-      console.warn('Cannot sync user: No user ID available')
-      return
-    }
-
+    if (!address || syncingRef.current) return
+    syncingRef.current = true
     setLoading(true)
-    try {
-      console.log('Syncing user with ID:', user.id)
-      
-      // Check if user exists
-      const { data: existingUser, error: fetchError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user.id)
-        .single()
 
-      if (fetchError) {
-        // PGRST116 = "not found" (this is OK, we'll create the user)
-        if (fetchError.code === 'PGRST116') {
-          // User doesn't exist, continue to create
-          console.log('User not found in database, will create new user')
-        } else {
-          // Other error - log full details with proper serialization
-          console.error('Error fetching user:', JSON.stringify(fetchError, null, 2))
-          console.error('Error details:', {
-            message: fetchError.message,
-            code: fetchError.code,
-            details: fetchError.details,
-            hint: fetchError.hint,
-            userId: user.id
-          })
-          setLoading(false)
-          return
-        }
+    try {
+      const res = await fetch('/api/user/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address }),
+      })
+
+      const json = await res.json()
+
+      if (!res.ok) {
+        console.error('Error syncing user:', json)
+        return
       }
 
-      if (existingUser) {
-        // User exists, update if needed
-        console.log('User found in database:', existingUser.id)
-        console.log('User private_key status:', {
-          has_private_key: !!existingUser.private_key,
-          private_key_value: existingUser.private_key ? 'EXISTS' : 'NULL',
-          hasCheckedPrivateKey,
-          showPrivateKeySetup
-        })
-        setDbUser(existingUser)
-        
-        // Check if user needs to set up private key (only once per session)
-        if (!existingUser.private_key && !hasCheckedPrivateKey) {
-          console.log('🔑 TRIGGERING PRIVATE KEY SETUP MODAL')
-          setShowPrivateKeySetup(true)
-          setHasCheckedPrivateKey(true)
-        } else if (existingUser.private_key) {
-          console.log('✅ User already has private key, no modal needed')
-        } else if (hasCheckedPrivateKey) {
-          console.log('⏭️ Private key check already done this session')
-        }
-      } else {
-        // User doesn't exist, create new user
-        console.log('Creating new user in database')
-        const { data: newUser, error: createError } = await supabase
-          .from('users')
-          .insert({
-            id: user.id,
-            private_key: null,
-            wallet_address: null,
-          })
-          .select()
-          .single()
+      const syncedUser: User = json.user
+      setDbUser(syncedUser)
 
-        if (createError) {
-          console.error('Error creating user:', createError)
-          console.error('Create error details:', {
-            message: createError.message,
-            code: createError.code,
-            details: createError.details,
-            hint: createError.hint,
-            userId: user.id
-          })
-        } else {
-          console.log('User created successfully:', newUser.id)
-          console.log('🔑 TRIGGERING PRIVATE KEY SETUP MODAL (NEW USER)')
-          setDbUser(newUser)
-          
-          // Show private key setup modal for new users
-          setShowPrivateKeySetup(true)
-          setHasCheckedPrivateKey(true)
-        }
+      if (!syncedUser.private_key && !hasCheckedPrivateKey) {
+        setShowPrivateKeySetup(true)
+        setHasCheckedPrivateKey(true)
       }
     } catch (error) {
       console.error('Error syncing user:', error)
     } finally {
       setLoading(false)
+      syncingRef.current = false
     }
-  }
-
-  const connectMetaMask = async () => {
-    // Use ConnectButton from @mysten/dapp-kit to open wallet picker in UI
-    console.log('Use <ConnectButton /> from @mysten/dapp-kit to connect wallet')
   }
 
   const logout = () => {
@@ -145,7 +83,6 @@ export function useAuth() {
     user,
     dbUser,
     loading,
-    login: connectMetaMask,
     logout,
     syncUser,
     isWalletLogin,
