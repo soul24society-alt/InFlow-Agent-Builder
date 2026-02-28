@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
 import { Layers, Trash2, Rocket, Eye } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,7 +24,7 @@ export function ConfigList({ onSelectConfig, onDeploymentStart }: ConfigListProp
 
   const fetchConfigs = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/orbit/configs');
+      const response = await fetch(`${BACKEND_URL}/api/orbit/configs`);
       const data = await response.json();
       
       if (data.success) {
@@ -37,7 +39,7 @@ export function ConfigList({ onSelectConfig, onDeploymentStart }: ConfigListProp
 
   const handleDelete = async (configId: string) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/orbit/config/${configId}`, {
+      const response = await fetch(`${BACKEND_URL}/api/orbit/config/${configId}`, {
         method: 'DELETE'
       });
 
@@ -63,7 +65,7 @@ export function ConfigList({ onSelectConfig, onDeploymentStart }: ConfigListProp
 
   const handleDeploy = async (configId: string) => {
     try {
-      const response = await fetch('http://localhost:3000/api/orbit/deploy', {
+      const response = await fetch(`${BACKEND_URL}/api/orbit/deploy`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ configId })

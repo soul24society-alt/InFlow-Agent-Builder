@@ -38,7 +38,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Backend URL for deployment proxy
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:3000")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:3001")
 
 
 @asynccontextmanager

@@ -12,7 +12,7 @@ services:
       - GROQ_API_KEY2=${GROQ_API_KEY2}
       - GROQ_API_KEY3=${GROQ_API_KEY3}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - BACKEND_URL=${BACKEND_URL:-http://localhost:3000}
+      - BACKEND_URL=${BACKEND_URL:-http://localhost:3001}
     env_file:
       - .env
     restart: unless-stopped

@@ -9,7 +9,7 @@ echo ""
 
 # Check if server is running
 echo "1️⃣  Checking if server is running..."
-response=$(curl -s http://localhost:3000/health)
+response=$(curl -s http://localhost:3001/health)
 
 if [ -z "$response" ]; then
     echo "❌ Server is not running!"

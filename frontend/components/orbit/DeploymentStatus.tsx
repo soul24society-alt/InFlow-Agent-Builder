@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
 import { CheckCircle2, Clock, XCircle, Loader2, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,7 +31,7 @@ export function DeploymentStatus({ deploymentId }: DeploymentStatusProps) {
 
   const fetchDeploymentStatus = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/orbit/deploy/status/${deploymentId}`);
+      const response = await fetch(`${BACKEND_URL}/api/orbit/deploy/status/${deploymentId}`);
       const data = await response.json();
       
       if (data.success) {

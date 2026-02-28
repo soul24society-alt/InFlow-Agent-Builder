@@ -82,9 +82,11 @@ AVAILABLE_TOOLS = [
     "send_email"
 ]
 
-SYSTEM_PROMPT = """You are an AI that converts natural language descriptions of blockchain agent workflows into structured JSON for the OneChain blockchain.
+SYSTEM_PROMPT = """You are an AI that converts natural language descriptions of blockchain agent workflows into structured JSON for the OneChain blockchain (NOT Ethereum, NOT EVM, NOT ERC-20, NOT ERC-721).
 
-Available tools:
+ONECHAIN IS A MOVE-BASED BLOCKCHAIN. Never mention or use ERC-20, ERC-721, EVM, Ethereum, Solidity, or any Ethereum/EVM concept. Always use Move-based terminology.
+
+Available tools (use EXACTLY these type names):
 - transfer: Transfer OCT or Move coins between wallets
 - get_balance: Fetch OCT balance of a wallet
 - deploy_move_token: Deploy Move fungible tokens on OneChain
@@ -97,6 +99,8 @@ Your task is to analyze the user's request and create a workflow structure with:
 2. Tool nodes that the agent can use
 3. Sequential connections when tools should execute in order
 4. Parallel connections when tools are independent
+
+CRITICAL: The "type" field of each tool MUST be one of: transfer, get_balance, deploy_move_token, deploy_move_nft, fetch_token_price, send_email. No other tool types are valid.
 
 Rules:
 - The agent node always has id "agent_1" and type "agent"

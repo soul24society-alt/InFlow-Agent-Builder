@@ -39,38 +39,50 @@ const PAYMENT_ESCROW_ABI = [
 
 export class PaymentService {
   private supabase;
-  private provider;
-  private contract;
-  private backendSigner;
+  private _provider: ethers.JsonRpcProvider | null = null;
+  private _contract: ethers.Contract | null = null;
+  private _backendSigner: ethers.Wallet | null = null;
   private jwtSecret: string;
 
   constructor() {
-    // Initialize Supabase
+    // Initialize Supabase (always available)
     this.supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // Initialize blockchain provider
-    this.provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_ONECHAIN_TESTNET_RPC_URL || 'https://rpc-testnet.onelabs.cc:443'
-    );
-
-    // Initialize contract
-    this.contract = new ethers.Contract(
-      process.env.NEXT_PUBLIC_PAYMENT_CONTRACT_ADDRESS!,
-      PAYMENT_ESCROW_ABI,
-      this.provider
-    );
-
-    // Initialize backend signer (for executing/refunding payments)
-    this.backendSigner = new ethers.Wallet(
-      process.env.PAYMENT_BACKEND_PRIVATE_KEY!,
-      this.provider
-    );
-
     // JWT secret for execution tokens
     this.jwtSecret = process.env.JWT_SECRET || 'your-secret-key-change-this';
+  }
+
+  /** Lazy provider — created only when first needed */
+  private get provider(): ethers.JsonRpcProvider {
+    if (!this._provider) {
+      this._provider = new ethers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_ONECHAIN_TESTNET_RPC_URL || 'https://rpc-testnet.onelabs.cc:443'
+      );
+    }
+    return this._provider;
+  }
+
+  /** Lazy contract — throws clearly if env var is missing */
+  private get contract(): ethers.Contract {
+    if (!this._contract) {
+      const addr = process.env.NEXT_PUBLIC_PAYMENT_CONTRACT_ADDRESS;
+      if (!addr) throw new Error('NEXT_PUBLIC_PAYMENT_CONTRACT_ADDRESS is not configured');
+      this._contract = new ethers.Contract(addr, PAYMENT_ESCROW_ABI, this.provider);
+    }
+    return this._contract;
+  }
+
+  /** Lazy signer — throws clearly if env var is missing */
+  private get backendSigner(): ethers.Wallet {
+    if (!this._backendSigner) {
+      const key = process.env.PAYMENT_BACKEND_PRIVATE_KEY;
+      if (!key) throw new Error('PAYMENT_BACKEND_PRIVATE_KEY is not configured');
+      this._backendSigner = new ethers.Wallet(key, this.provider);
+    }
+    return this._backendSigner;
   }
 
   /**

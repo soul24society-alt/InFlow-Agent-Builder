@@ -51,7 +51,7 @@ if not GROQ_API_KEYS and not GEMINI_API_KEY:
     raise ValueError("At least one of GROQ_API_KEY1-3 or GEMINI_API_KEY must be set")
 
 # Backend URL - configurable via environment or defaults to localhost
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:3000")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:3001")
 
 # Tool Definitions
 TOOL_DEFINITIONS = {

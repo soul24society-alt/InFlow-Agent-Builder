@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
 import { Save, Rocket, AlertCircle, CheckCircle2, Trash2, Plus, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -114,7 +116,7 @@ export function OrbitConfigForm({ onDeploymentStart, initialConfig }: OrbitConfi
         return;
       }
 
-      const response = await fetch('http://localhost:3000/api/orbit/config', {
+      const response = await fetch(`${BACKEND_URL}/api/orbit/config`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -155,7 +157,7 @@ export function OrbitConfigForm({ onDeploymentStart, initialConfig }: OrbitConfi
 
       setLoading(true);
 
-      const response = await fetch('http://localhost:3000/api/orbit/deploy', {
+      const response = await fetch(`${BACKEND_URL}/api/orbit/deploy`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ configId })

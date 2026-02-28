@@ -30,7 +30,7 @@ module.exports = {
   ONETRANSFER_PACKAGE_ID: process.env.ONETRANSFER_PACKAGE_ID || '',
 
   // Server Configuration
-  PORT: process.env.PORT || 3000,
+  PORT: process.env.PORT || 3001,
 
   // API Keys
   GROQ_API_KEY: process.env.GROQ_API_KEY || '',
