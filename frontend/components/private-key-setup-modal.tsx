@@ -35,12 +35,6 @@ export function PrivateKeySetupModal({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Debug logging
-  React.useEffect(() => {
-    console.log('PrivateKeySetupModal - open state:', open)
-    console.log('PrivateKeySetupModal - userId:', userId)
-  }, [open, userId])
-
   const validatePrivateKey = (key: string): boolean => {
     // Remove 0x prefix if present
     const cleanKey = key.startsWith('0x') ? key.slice(2) : key
@@ -81,7 +75,6 @@ export function PrivateKeySetupModal({
         .eq('id', userId)
 
       if (updateError) {
-        console.error('Error updating user:', updateError)
         setError("Failed to save private key. Please try again.")
         return
       }
@@ -100,8 +93,7 @@ export function PrivateKeySetupModal({
       
       // Close modal
       onOpenChange(false)
-    } catch (error) {
-      console.error('Error setting up private key:', error)
+    } catch {
       setError("Invalid private key or failed to derive wallet address. Please check your private key and try again.")
     } finally {
       setIsLoading(false)

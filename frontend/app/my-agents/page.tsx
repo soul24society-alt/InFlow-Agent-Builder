@@ -31,7 +31,6 @@ import { getAgentsByUserId, deleteAgent } from "@/lib/agents"
 import type { Agent } from "@/lib/supabase"
 import { AgentWalletModal } from "@/components/agent-wallet"
 import { UserProfile } from "@/components/user-profile"
-import { PrivateKeySetupModal } from "@/components/private-key-setup-modal"
 import { toast } from "@/components/ui/use-toast"
 import {
   AlertDialog,
@@ -60,7 +59,7 @@ import {
 
 export default function MyAgents() {
   const router = useRouter()
-  const { ready, authenticated, user, logout, loading: authLoading, isWalletLogin, showPrivateKeySetup, setShowPrivateKeySetup, syncUser } = useAuth()
+  const { ready, authenticated, user, logout, loading: authLoading, isWalletLogin, syncUser } = useAuth()
   const [agents, setAgents] = useState<Agent[]>([])
   const [loading, setLoading] = useState(true)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -495,15 +494,7 @@ console.log(data);`}
           </DialogContent>
         </Dialog>
 
-        {/* Private Key Setup Modal */}
-        {authenticated && user && (
-          <PrivateKeySetupModal
-            open={showPrivateKeySetup}
-            onOpenChange={setShowPrivateKeySetup}
-            userId={user.id}
-            onComplete={syncUser}
-          />
-        )}
+
       </main>
     </TooltipProvider>
   )

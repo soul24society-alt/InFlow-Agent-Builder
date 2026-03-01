@@ -7,7 +7,6 @@ import { useAuth } from "@/lib/auth"
 import { ConnectModal } from "@mysten/dapp-kit"
 import { ArrowRight, Bot, Loader2 } from "lucide-react"
 import { UserProfile } from "@/components/user-profile"
-import { PrivateKeySetupModal } from "@/components/private-key-setup-modal"
 import FeaturesExpandableCards from "@/components/features-expandable-cards"
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from "@/components/ui/animated-modal"
 import { motion, useInView, useSpring } from "motion/react"
@@ -57,7 +56,7 @@ function NumberTicker({
 }
 
 export default function Home() {
-  const { ready, authenticated, loading, logout, user, showPrivateKeySetup, setShowPrivateKeySetup, syncUser } = useAuth()
+  const { ready, authenticated, loading, logout, user, syncUser } = useAuth()
   const [connectModalOpen, setConnectModalOpen] = useState(false)
   const [loadingLink, setLoadingLink] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -666,15 +665,7 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Private Key Setup Modal */}
-      {authenticated && user && (
-        <PrivateKeySetupModal
-          open={showPrivateKeySetup}
-          onOpenChange={setShowPrivateKeySetup}
-          userId={user.id}
-          onComplete={syncUser}
-        />
-      )}
+
     </div>
   )
 }

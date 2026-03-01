@@ -42,14 +42,6 @@ export function UserProfile({ onLogout }: UserProfileProps) {
 
   const walletAddress = getWalletAddress()
 
-  console.log('UserProfile Debug:', { 
-    hasDbUser: !!dbUser, 
-    dbWalletAddress: dbUser?.wallet_address,
-    isWalletLogin,
-    privyWalletAddress,
-    finalWalletAddress: walletAddress 
-  })
-
   // Get user initials from wallet address
   const getUserInitials = () => {
     if (walletAddress) {

@@ -348,14 +348,14 @@ export default function AgentChatPage() {
                 >
                   <div
                     className={cn(
-                      "max-w-[80%] rounded-2xl px-4 py-2.5",
+                      "max-w-[80%] min-w-0 rounded-2xl px-4 py-2.5 break-words",
                       message.role === "user"
                         ? "bg-foreground text-background rounded-br-md"
                         : "bg-muted/60 text-foreground border border-border rounded-bl-md"
                     )}
                   >
                     <div
-                      className="text-sm leading-relaxed whitespace-pre-wrap [&_a]:underline [&_a]:underline-offset-2"
+                      className="text-sm leading-relaxed whitespace-pre-wrap break-words [&_a]:underline [&_a]:underline-offset-2"
                       dangerouslySetInnerHTML={{ __html: formatContent(message.content) }}
                     />
 

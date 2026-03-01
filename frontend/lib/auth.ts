@@ -21,8 +21,6 @@ export function useAuth() {
 
   const [dbUser, setDbUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showPrivateKeySetup, setShowPrivateKeySetup] = useState(false)
-  const [hasCheckedPrivateKey, setHasCheckedPrivateKey] = useState(false)
   const syncingRef = useRef(false)
 
   useEffect(() => {
@@ -31,7 +29,6 @@ export function useAuth() {
     } else {
       setDbUser(null)
       setLoading(false)
-      setHasCheckedPrivateKey(false)
     }
     // address is the only stable primitive dep we need
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,19 +49,13 @@ export function useAuth() {
       const json = await res.json()
 
       if (!res.ok) {
-        console.error('Error syncing user:', json)
         return
       }
 
       const syncedUser: User = json.user
       setDbUser(syncedUser)
-
-      if (!syncedUser.private_key && !hasCheckedPrivateKey) {
-        setShowPrivateKeySetup(true)
-        setHasCheckedPrivateKey(true)
-      }
     } catch (error) {
-      console.error('Error syncing user:', error)
+      // silently handle sync errors
     } finally {
       setLoading(false)
       syncingRef.current = false
@@ -74,7 +65,6 @@ export function useAuth() {
   const logout = () => {
     disconnectWallet()
     setDbUser(null)
-    setHasCheckedPrivateKey(false)
   }
 
   return {
@@ -87,7 +77,5 @@ export function useAuth() {
     syncUser,
     isWalletLogin,
     privyWalletAddress,
-    showPrivateKeySetup,
-    setShowPrivateKeySetup,
   }
 }
