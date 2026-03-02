@@ -18,7 +18,6 @@ import {
   Copy,
   Check,
   FileCode,
-  Layers,
   Pencil,
   Trash2,
   ArrowRight,
@@ -157,12 +156,6 @@ export default function MyAgents() {
 
           {/* Navigation */}
           <div className="mt-6 flex items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="h-8 text-xs font-medium">
-              <Link href="/orbit-builder">
-                <Layers className="mr-1.5 h-3.5 w-3.5" />
-                Orbit L3 Builder
-              </Link>
-            </Button>
             <Button asChild variant="outline" size="sm" className="h-8 text-xs font-medium">
               <Link href="/contract-explorer">
                 <FileCode className="mr-1.5 h-3.5 w-3.5" />

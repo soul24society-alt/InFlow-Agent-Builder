@@ -615,7 +615,6 @@ export default function Home() {
               <ul className="space-y-2 sm:space-y-3">
                 <li><Link href="/agent-builder" className="text-slate-400 hover:text-white transition-colors text-sm">Agent Builder</Link></li>
                 <li><Link href="/my-agents" className="text-slate-400 hover:text-white transition-colors text-sm">My Agents</Link></li>
-                <li><Link href="/orbit-builder" className="text-slate-400 hover:text-white transition-colors text-sm">Orbit L3 Builder</Link></li>
                 <li><Link href="/contract-explorer" className="text-slate-400 hover:text-white transition-colors text-sm">Contract Explorer</Link></li>
                 <li><Link href="/api-docs" className="text-slate-400 hover:text-white transition-colors text-sm">API Docs</Link></li>
               </ul>

@@ -19,12 +19,6 @@ cd "$BASE_DIR/n8n_agent_backend"
 sudo docker-compose down
 echo "✅ n8n_agent_backend stopped"
 
-# Stop Docker containers for orbit_ai_backend
-echo "🐳 Stopping orbit_ai_backend..."
-cd "$BASE_DIR/orbit_ai_backend"
-sudo docker-compose down
-echo "✅ orbit_ai_backend stopped"
-
 # Kill backend and frontend Node processes
 echo "📦 Stopping backend and frontend..."
 pkill -f "npm start" || echo "No backend process found"
