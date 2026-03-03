@@ -4,7 +4,7 @@ export async function createAgent(
   userId: string,
   name: string,
   description: string | null,
-  tools: Array<{ tool: string; next_tool: string | null }>
+  tools: Array<{ tool: string; next_tool: string | null; config?: Record<string, any> }>
 ): Promise<Agent> {
   // Generate random API key
   const apiKey = generateApiKey()
@@ -81,7 +81,7 @@ export async function updateAgent(
   updates: {
     name?: string
     description?: string | null
-    tools?: Array<{ tool: string; next_tool: string | null }>
+    tools?: Array<{ tool: string; next_tool: string | null; config?: Record<string, any> }>
   }
 ): Promise<Agent> {
   const { data, error } = await supabase

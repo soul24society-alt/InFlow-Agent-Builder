@@ -83,10 +83,15 @@ AVAILABLE_TOOLS = [
     "send_email",
     "airdrop",
     "swap",
+    "swap_tokens",
+    "get_swap_quote",
+    "get_dex_pools",
+    "get_dex_price",
     "deposit_yield",
     "wrap_oct",
     "get_token_info",
     "get_token_balance",
+    "token_metadata",
     "get_nft_info",
     "condition_check",
     "yes_no_answer",
@@ -98,7 +103,12 @@ AVAILABLE_TOOLS = [
     "approve_token",
     "revoke_approval",
     "tx_status",
-    "wallet_history"
+    "wallet_history",
+    "cross_border_transfer",
+    "check_oneid",
+    "calculate",
+    "deploy_token",
+    "deploy_nft_collection",
 ]
 
 SYSTEM_PROMPT = """You are an AI that converts natural language descriptions of blockchain agent workflows into structured JSON for the OneChain blockchain (NOT Ethereum, NOT EVM, NOT ERC-20, NOT ERC-721).
@@ -131,6 +141,14 @@ Available tools (use EXACTLY these type names):
 - revoke_approval: Revoke a token spending approval
 - tx_status: Check confirmation status of a transaction
 - wallet_history: Fetch recent transaction history for a wallet
+- token_metadata: Get on-chain metadata for a Move object/token by ID
+- get_swap_quote: Get a price quote for swapping tokens on ONEDEX (no execution)
+- swap_tokens: Execute a token swap on ONEDEX (OneChain native DEX)
+- get_dex_pools: List available ONEDEX liquidity pools
+- get_dex_price: Get on-chain token price from ONEDEX
+- cross_border_transfer: Send a cross-border payment using ONETRANSFER
+- check_oneid: Check if a wallet has a verified ONEID credential
+- calculate: Perform mathematical calculations with variable substitution
 
 Your task is to analyze the user's request and create a workflow structure with:
 1. An agent node (always present, id: "agent_1")

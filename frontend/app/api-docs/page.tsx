@@ -115,6 +115,37 @@ export default function ApiDocs() {
             </div>
           </section>
 
+          {/* Available Tools */}
+          <section className="space-y-4">
+            <h2 className="text-2xl font-bold">Available Tools</h2>
+            <p className="text-muted-foreground">
+              Pass any of these tool names in the <code className="bg-muted px-2 py-0.5 rounded border text-sm">tools</code> array. The agent will execute them automatically based on your message.
+            </p>
+            <div className="grid gap-3">
+              {[
+                { category: 'Wallet & Balances', tools: ['get_balance', 'wallet_history', 'tx_status'] },
+                { category: 'Transfers & Airdrop', tools: ['transfer', 'airdrop'] },
+                { category: 'Tokens', tools: ['deploy_token', 'get_token_info', 'get_token_balance', 'token_metadata'] },
+                { category: 'NFTs', tools: ['deploy_nft_collection', 'mint_nft', 'get_nft_info'] },
+                { category: 'Allowances', tools: ['approve_token', 'revoke_approval'] },
+                { category: 'ONEDEX (Swap)', tools: ['get_swap_quote', 'swap_tokens', 'get_dex_pools', 'get_dex_price'] },
+                { category: 'ONETRANSFER', tools: ['cross_border_transfer'] },
+                { category: 'ONEID', tools: ['check_oneid'] },
+                { category: 'Governance / DAO', tools: ['create_dao', 'create_proposal', 'vote_on_proposal', 'get_proposal'] },
+                { category: 'Utilities', tools: ['fetch_price', 'calculate', 'condition_check', 'yes_no_answer', 'send_webhook', 'send_email'] },
+              ].map(({ category, tools }) => (
+                <div key={category} className="p-3 bg-muted border rounded-lg">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{category}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {tools.map(t => (
+                      <code key={t} className="bg-background px-2 py-0.5 rounded border text-xs">{t}</code>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
           {/* cURL Example */}
           <section className="space-y-4">
             <h2 className="text-2xl font-bold">cURL Example</h2>

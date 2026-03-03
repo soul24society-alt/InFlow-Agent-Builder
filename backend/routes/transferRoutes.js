@@ -1,5 +1,5 @@
 const express = require('express');
-const { transfer, transferToken, prepareTransfer, getBalance } = require('../controllers/transferController');
+const { transfer, transferToken, prepareTransfer, getBalance, airdrop } = require('../controllers/transferController');
 
 const router = express.Router();
 
@@ -14,5 +14,8 @@ router.post('/prepare', prepareTransfer);
 
 // Get OCT balance for an address
 router.get('/balance/:address', getBalance);
+
+// Airdrop OCT to multiple recipients in one PTB
+router.post('/airdrop', airdrop);
 
 module.exports = router;

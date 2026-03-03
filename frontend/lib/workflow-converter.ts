@@ -15,16 +15,21 @@ export function workflowToTools(
   nodes: Node[], 
   edges: Edge[], 
   agentNodeId: string = "agent-node"
-): Array<{ tool: string; next_tool: string | null }> {
+): Array<{ tool: string; next_tool: string | null; config?: Record<string, any> }> {
   // Filter out agent node and edges connected to/from agent node
   const toolNodes = nodes.filter((node) => node.id !== agentNodeId && node.type !== "agent")
   const toolEdges = edges.filter((edge) => edge.source !== agentNodeId && edge.target !== agentNodeId)
 
   // Create a map of node IDs to their tool types
   const nodeIdToType = new Map<string, string>()
+  // Create a map of node IDs to their config data
+  const nodeIdToConfig = new Map<string, Record<string, any>>()
   toolNodes.forEach((node) => {
     if (node.type) {
       nodeIdToType.set(node.id, node.type)
+      if (node.data?.config && Object.keys(node.data.config).length > 0) {
+        nodeIdToConfig.set(node.id, node.data.config)
+      }
     }
   })
 
@@ -55,6 +60,7 @@ export function workflowToTools(
 
     processedNodeIds.add(nodeId)
 
+    const config = nodeIdToConfig.get(nodeId)
     const nextNodeId = nodeToNextNode.get(nodeId)
     if (nextNodeId) {
       const nextNodeType = nodeIdToType.get(nextNodeId)
@@ -63,6 +69,7 @@ export function workflowToTools(
         tools.push({
           tool: nodeType,
           next_tool: nextNodeType,
+          ...(config ? { config } : {}),
         })
         // Continue traversing the chain
         traverseChain(nextNodeId)
@@ -71,6 +78,7 @@ export function workflowToTools(
         tools.push({
           tool: nodeType,
           next_tool: null,
+          ...(config ? { config } : {}),
         })
       }
     } else {
@@ -78,6 +86,7 @@ export function workflowToTools(
       tools.push({
         tool: nodeType,
         next_tool: null,
+        ...(config ? { config } : {}),
       })
     }
   }
@@ -92,9 +101,11 @@ export function workflowToTools(
     if (!processedNodeIds.has(node.id) && node.type) {
       const nodeType = nodeIdToType.get(node.id)
       if (nodeType) {
+        const config = nodeIdToConfig.get(node.id)
         tools.push({
           tool: nodeType,
           next_tool: null,
+          ...(config ? { config } : {}),
         })
       }
     }
@@ -110,7 +121,7 @@ export function workflowToTools(
  * @returns Object with nodes and edges arrays
  */
 export function toolsToWorkflow(
-  tools: Array<{ tool: string; next_tool: string | null }>,
+  tools: Array<{ tool: string; next_tool: string | null; config?: Record<string, any> }>,
   agentNodeId: string = "agent-node"
 ): { nodes: Node[]; edges: Edge[] } {
   const nodes: Node[] = []
@@ -134,6 +145,7 @@ export function toolsToWorkflow(
       type: toolData.tool,
       position,
       id: nodeId,
+      config: toolData.config,
     })
     
     nodes.push(node)

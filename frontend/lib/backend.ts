@@ -165,7 +165,7 @@ export async function deleteConversation(conversationId: string): Promise<void> 
  * The request format matches TEST_REQUESTS.md from n8n_agent_backend
  */
 export async function sendAgentChatMessage(
-  tools: Array<{ tool: string; next_tool: string | null }>,
+  tools: Array<{ tool: string; next_tool: string | null; config?: Record<string, any> }>,
   userMessage: string,
   privateKey?: string
 ): Promise<AgentChatResponse> {

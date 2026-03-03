@@ -32,6 +32,7 @@ export interface Agent {
   tools: Array<{
     tool: string
     next_tool: string | null
+    config?: Record<string, any>
   }>
   created_at: string
   updated_at: string

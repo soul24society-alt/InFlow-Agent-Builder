@@ -22,6 +22,12 @@ import {
   ScrollText,
   Vote,
   ClipboardList,
+  ArrowUpDown,
+  Shuffle,
+  LayoutGrid,
+  BarChart2,
+  Globe,
+  ShieldCheck,
 } from "lucide-react"
 
 const toolTypes = [
@@ -144,6 +150,43 @@ const toolTypes = [
     label: "Get Proposal",
     description: "Fetch proposal details & tally",
     icon: ClipboardList,
+  },
+  // ── OneChain Ecosystem ────────────────────────────────────────────────────
+  {
+    type: "get_swap_quote",
+    label: "Swap Quote",
+    description: "Get ONEDEX quote without trading",
+    icon: ArrowUpDown,
+  },
+  {
+    type: "swap_tokens",
+    label: "Swap Tokens",
+    description: "Execute swap on ONEDEX",
+    icon: Shuffle,
+  },
+  {
+    type: "get_dex_pools",
+    label: "DEX Pools",
+    description: "List ONEDEX liquidity pools",
+    icon: LayoutGrid,
+  },
+  {
+    type: "get_dex_price",
+    label: "DEX Price",
+    description: "Get on-chain token price",
+    icon: BarChart2,
+  },
+  {
+    type: "cross_border_transfer",
+    label: "Cross-Border Transfer",
+    description: "ONETRANSFER international payment",
+    icon: Globe,
+  },
+  {
+    type: "check_oneid",
+    label: "Check ONEID",
+    description: "Verify wallet ONEID / KYC status",
+    icon: ShieldCheck,
   },
 ]
 

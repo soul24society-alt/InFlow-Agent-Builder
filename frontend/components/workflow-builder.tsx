@@ -64,6 +64,7 @@ const toolTypes = [
   "get_balance",
   "deploy_token",
   "deploy_nft_collection",
+  "mint_nft",
   "create_dao",
   "airdrop",
   "fetch_price",
@@ -81,6 +82,13 @@ const toolTypes = [
   "create_proposal",
   "vote_on_proposal",
   "get_proposal",
+  // OneChain ecosystem
+  "get_swap_quote",
+  "swap_tokens",
+  "get_dex_pools",
+  "get_dex_price",
+  "cross_border_transfer",
+  "check_oneid",
 ]
 
 const nodeTypes: NodeTypes = {
@@ -90,6 +98,7 @@ const nodeTypes: NodeTypes = {
   get_balance: ToolNode,
   deploy_token: ToolNode,
   deploy_nft_collection: ToolNode,
+  mint_nft: ToolNode,
   create_dao: ToolNode,
   airdrop: ToolNode,
   fetch_price: ToolNode,
@@ -107,6 +116,13 @@ const nodeTypes: NodeTypes = {
   create_proposal: ToolNode,
   vote_on_proposal: ToolNode,
   get_proposal: ToolNode,
+  // OneChain ecosystem
+  get_swap_quote: ToolNode,
+  swap_tokens: ToolNode,
+  get_dex_pools: ToolNode,
+  get_dex_price: ToolNode,
+  cross_border_transfer: ToolNode,
+  check_oneid: ToolNode,
 }
 
 const edgeTypes: EdgeTypes = {

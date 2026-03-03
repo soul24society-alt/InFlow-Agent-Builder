@@ -221,6 +221,300 @@ TOOL_DEFINITIONS = {
         },
         "endpoint": "local",
         "method": "LOCAL"
+    },
+    # ── Wallet & Transaction ──────────────────────────────────────────────────
+    "wallet_history": {
+        "name": "wallet_history",
+        "description": "Fetch recent transaction history for a wallet address on OneChain.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "address": {"type": "string", "description": "Wallet address to fetch history for"}
+            },
+            "required": ["address"]
+        },
+        "endpoint": "/wallet/history/{address}",
+        "method": "GET"
+    },
+    "tx_status": {
+        "name": "tx_status",
+        "description": "Check the status and details of a transaction by its digest on OneChain.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "digest": {"type": "string", "description": "Transaction digest/hash to look up"}
+            },
+            "required": ["digest"]
+        },
+        "endpoint": "/wallet/tx/{digest}",
+        "method": "GET"
+    },
+    "token_metadata": {
+        "name": "token_metadata",
+        "description": "Get metadata and details about a Move token or object by its object ID on OneChain.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "objectId": {"type": "string", "description": "The on-chain object ID of the token"}
+            },
+            "required": ["objectId"]
+        },
+        "endpoint": "/token/info/{objectId}",
+        "method": "GET"
+    },
+    # ── Transfers & Airdrop ───────────────────────────────────────────────────
+    "airdrop": {
+        "name": "airdrop",
+        "description": "Send OCT to multiple wallet addresses in a single batch transaction (airdrop). Much more efficient than individual transfers.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "privateKey": {"type": "string", "description": "Ed25519 private key of the sender"},
+                "recipients": {
+                    "type": "array",
+                    "description": "Array of {address, amount} objects",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "address": {"type": "string"},
+                            "amount": {"type": "string"}
+                        }
+                    }
+                }
+            },
+            "required": ["privateKey", "recipients"]
+        },
+        "endpoint": "/transfer/airdrop",
+        "method": "POST"
+    },
+    # ── Allowances ───────────────────────────────────────────────────────────
+    "approve_token": {
+        "name": "approve_token",
+        "description": "Grant a spender address permission to spend tokens on behalf of the user.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "privateKey": {"type": "string", "description": "Ed25519 private key of the token owner"},
+                "tokenAddress": {"type": "string", "description": "Token object ID or package address"},
+                "spenderAddress": {"type": "string", "description": "Address to grant spending permission to"},
+                "amount": {"type": "string", "description": "Amount to approve"}
+            },
+            "required": ["privateKey", "tokenAddress", "spenderAddress", "amount"]
+        },
+        "endpoint": "/allowance/approve",
+        "method": "POST"
+    },
+    "revoke_approval": {
+        "name": "revoke_approval",
+        "description": "Revoke a spender's token approval, removing their permission to transfer tokens.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "privateKey": {"type": "string", "description": "Ed25519 private key of the token owner"},
+                "tokenAddress": {"type": "string", "description": "Token object ID"},
+                "spenderAddress": {"type": "string", "description": "Address whose approval is being revoked"}
+            },
+            "required": ["privateKey", "tokenAddress", "spenderAddress"]
+        },
+        "endpoint": "/allowance/revoke",
+        "method": "POST"
+    },
+    # ── Governance / DAO ──────────────────────────────────────────────────────
+    "create_dao": {
+        "name": "create_dao",
+        "description": "Create a new on-chain DAO (Decentralized Autonomous Organization) with governance voting on OneChain.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "Name of the DAO"},
+                "description": {"type": "string", "description": "Description of the DAO's purpose"},
+                "walletAddress": {"type": "string", "description": "Creator's wallet address"},
+                "votingPeriodDays": {"type": "number", "description": "Voting period in days (default 7)"},
+                "quorumPercent": {"type": "number", "description": "Quorum percentage required (default 51)"}
+            },
+            "required": ["name", "walletAddress"]
+        },
+        "endpoint": "/governance/create-dao",
+        "method": "POST"
+    },
+    "create_proposal": {
+        "name": "create_proposal",
+        "description": "Create a new governance proposal in an existing DAO for community voting.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "daoId": {"type": "string", "description": "ID of the DAO"},
+                "title": {"type": "string", "description": "Proposal title"},
+                "description": {"type": "string", "description": "Proposal description"},
+                "walletAddress": {"type": "string", "description": "Proposer's wallet address"}
+            },
+            "required": ["daoId", "title", "walletAddress"]
+        },
+        "endpoint": "/governance/proposal",
+        "method": "POST"
+    },
+    "vote_on_proposal": {
+        "name": "vote_on_proposal",
+        "description": "Cast a yes, no, or abstain vote on an active governance proposal.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "proposalId": {"type": "string", "description": "ID of the proposal"},
+                "vote": {"type": "string", "description": "Vote: yes, no, or abstain"},
+                "walletAddress": {"type": "string", "description": "Voter's wallet address"}
+            },
+            "required": ["proposalId", "vote", "walletAddress"]
+        },
+        "endpoint": "/governance/vote",
+        "method": "POST"
+    },
+    "get_proposal": {
+        "name": "get_proposal",
+        "description": "Get details and current vote tally of a governance proposal.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "proposalId": {"type": "string", "description": "ID of the proposal to fetch"}
+            },
+            "required": ["proposalId"]
+        },
+        "endpoint": "/governance/proposal/{proposalId}",
+        "method": "GET"
+    },
+    # ── ONEDEX / Swap ─────────────────────────────────────────────────────────
+    "get_swap_quote": {
+        "name": "get_swap_quote",
+        "description": "Get a price quote for swapping tokenIn to tokenOut on ONEDEX (OneChain native DEX). Does NOT execute the swap.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "tokenIn": {"type": "string", "description": "Token to swap from (e.g. OCT)"},
+                "tokenOut": {"type": "string", "description": "Token to swap to (e.g. USDT)"},
+                "amountIn": {"type": "string", "description": "Amount of tokenIn to quote"}
+            },
+            "required": ["tokenIn", "tokenOut", "amountIn"]
+        },
+        "endpoint": "/dex/quote",
+        "method": "POST"
+    },
+    "swap_tokens": {
+        "name": "swap_tokens",
+        "description": "Execute a token swap on ONEDEX (OneChain native DEX). Requires private key to sign.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "privateKey": {"type": "string", "description": "Ed25519 private key to sign the swap"},
+                "tokenIn": {"type": "string", "description": "Token to swap from"},
+                "tokenOut": {"type": "string", "description": "Token to swap to"},
+                "amountIn": {"type": "string", "description": "Amount of tokenIn to swap"},
+                "minAmountOut": {"type": "string", "description": "Minimum acceptable output (optional slippage guard)"},
+                "poolId": {"type": "string", "description": "Specific pool ID to use (optional)"}
+            },
+            "required": ["privateKey", "tokenIn", "tokenOut", "amountIn"]
+        },
+        "endpoint": "/dex/swap",
+        "method": "POST"
+    },
+    "get_dex_pools": {
+        "name": "get_dex_pools",
+        "description": "List all available liquidity pools on ONEDEX.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        },
+        "endpoint": "/dex/pools",
+        "method": "GET"
+    },
+    "get_dex_price": {
+        "name": "get_dex_price",
+        "description": "Get the current on-chain price of a token from ONEDEX.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "token": {"type": "string", "description": "Token symbol or address to get price for"}
+            },
+            "required": ["token"]
+        },
+        "endpoint": "/dex/price/{token}",
+        "method": "GET"
+    },
+    # ── ONETRANSFER & ONEID ───────────────────────────────────────────────────
+    "cross_border_transfer": {
+        "name": "cross_border_transfer",
+        "description": "Send a cross-border or international transfer using ONETRANSFER protocol on OneChain.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "privateKey": {"type": "string", "description": "Ed25519 private key of the sender"},
+                "recipient": {"type": "string", "description": "Recipient wallet address"},
+                "amount": {"type": "string", "description": "Amount to transfer"},
+                "currency": {"type": "string", "description": "Currency/token to send (default: OCT)"},
+                "targetCurrency": {"type": "string", "description": "Target currency for conversion (optional)"}
+            },
+            "required": ["privateKey", "recipient", "amount"]
+        },
+        "endpoint": "/dex/cross-transfer",
+        "method": "POST"
+    },
+    "check_oneid": {
+        "name": "check_oneid",
+        "description": "Check whether a wallet address has a verified ONEID (OneChain identity/KYC credential).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "address": {"type": "string", "description": "Wallet address to check for ONEID"}
+            },
+            "required": ["address"]
+        },
+        "endpoint": "/dex/oneid/{address}",
+        "method": "GET"
+    },
+    # ── Utility ───────────────────────────────────────────────────────────────
+    "condition_check": {
+        "name": "condition_check",
+        "description": "Evaluate a boolean condition expression and return true or false. Useful for conditional logic in workflows.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "expression": {"type": "string", "description": "Boolean expression to evaluate, e.g. 'balance > 100'"},
+                "variables": {"type": "object", "description": "Variables used in the expression: {'balance': 150}"},
+                "description": {"type": "string", "description": "Human-readable description of the condition"}
+            },
+            "required": ["expression"]
+        },
+        "endpoint": "local",
+        "method": "LOCAL"
+    },
+    "yes_no_answer": {
+        "name": "yes_no_answer",
+        "description": "Record or evaluate a yes/no decision. Returns true for yes, false for no.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "question": {"type": "string", "description": "The yes/no question being answered"},
+                "answer": {"type": "string", "description": "The answer: yes, no, true, or false"}
+            },
+            "required": ["question", "answer"]
+        },
+        "endpoint": "local",
+        "method": "LOCAL"
+    },
+    "send_webhook": {
+        "name": "send_webhook",
+        "description": "Send an HTTP POST to a webhook URL with a custom payload. Use for integrations and notifications.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "url": {"type": "string", "description": "Webhook URL to POST to"},
+                "payload": {"type": "object", "description": "JSON payload to include in the request"},
+                "method": {"type": "string", "description": "HTTP method (default: POST)"},
+                "headers": {"type": "object", "description": "Optional HTTP headers"}
+            },
+            "required": ["url"]
+        },
+        "endpoint": "/webhook/send",
+        "method": "POST"
     }
 }
 
@@ -228,6 +522,7 @@ TOOL_DEFINITIONS = {
 class ToolConnection(BaseModel):
     tool: str
     next_tool: Optional[str] = None
+    config: Optional[Dict[str, Any]] = None
 
 class AgentRequest(BaseModel):
     tools: List[ToolConnection]
@@ -273,15 +568,21 @@ def convert_to_gemini_tools(tool_names: List[str]) -> List[Dict[str, Any]]:
 def build_system_prompt(tool_connections: List[ToolConnection]) -> str:
     """Build a dynamic system prompt based on connected tools"""
     
-    # Extract unique tools
+    # Extract unique tools and collect per-tool configs
     unique_tools = set()
     tool_flow = {}
+    tool_configs: Dict[str, Dict[str, Any]] = {}
     
     for conn in tool_connections:
         unique_tools.add(conn.tool)
         if conn.next_tool:
             unique_tools.add(conn.next_tool)
             tool_flow[conn.tool] = conn.next_tool
+        # Collect non-empty config values for each tool
+        if conn.config:
+            non_empty = {k: v for k, v in conn.config.items() if v is not None and v != ""}
+            if non_empty:
+                tool_configs[conn.tool] = non_empty
     
     # Check if sequential execution exists
     has_sequential = any(conn.next_tool for conn in tool_connections)
@@ -309,6 +610,20 @@ AVAILABLE TOOLS & CAPABILITIES:
         if tool_name in TOOL_DEFINITIONS:
             tool_def = TOOL_DEFINITIONS[tool_name]
             system_prompt += f"\n{tool_name}:\n   {tool_def['description']}\n"
+            # Inject pre-configured defaults if this tool has a saved config
+            if tool_name in tool_configs:
+                cfg = tool_configs[tool_name]
+                defaults_lines = ", ".join(f"{k}={json.dumps(v)}" for k, v in cfg.items())
+                system_prompt += f"   ⚙️  PRE-CONFIGURED DEFAULTS: {defaults_lines}\n"
+                system_prompt += f"   → When calling {tool_name}, use these saved values as defaults unless the user explicitly provides different ones.\n"
+    
+    # Summary of all pre-configured tools for top-level awareness
+    if tool_configs:
+        system_prompt += "\nPRE-CONFIGURED TOOL DEFAULTS SUMMARY:\n"
+        for tool_name, cfg in tool_configs.items():
+            param_list = ", ".join(f"{k}={json.dumps(v)}" for k, v in cfg.items())
+            system_prompt += f"  • {tool_name}: {param_list}\n"
+        system_prompt += "→ Use these saved defaults automatically — do NOT ask the user for these values.\n"
     
     system_prompt += """
 
@@ -838,16 +1153,61 @@ def execute_tool(tool_name: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
                     "tool": tool_name,
                     "error": f"Calculation error: {str(e)}. Expression: '{parameters.get('expression', '')}', Variables: {parameters.get('variables', {})}"
                 }
+        
+        elif tool_name == "condition_check":
+            expression = parameters.get("expression", parameters.get("condition", ""))
+            description = parameters.get("description", expression)
+            try:
+                # Simple safe eval: only allow boolean-ish expressions with numbers
+                import re
+                safe_expr = re.sub(r'[^0-9\s\+\-\*\/\(\)\.\<\>\=\!\&\|]', '', expression)
+                result = bool(eval(safe_expr)) if safe_expr.strip() else False
+                return {
+                    "success": True,
+                    "tool": tool_name,
+                    "result": {"condition": description, "expression": expression, "result": result, "value": result}
+                }
+            except Exception:
+                return {
+                    "success": True,
+                    "tool": tool_name,
+                    "result": {"condition": description, "expression": expression, "result": False, "note": "Could not evaluate expression"}
+                }
+        
+        elif tool_name == "yes_no_answer":
+            question = parameters.get("question", "")
+            answer = str(parameters.get("answer", "")).lower().strip()
+            is_yes = answer in ("yes", "true", "1", "y")
+            return {
+                "success": True,
+                "tool": tool_name,
+                "result": {"question": question, "answer": answer, "result": is_yes, "value": is_yes}
+            }
+        
+        else:
+            return {
+                "success": False,
+                "tool": tool_name,
+                "error": f"No LOCAL handler for tool: {tool_name}"
+            }
     
     # Handle URL parameters for GET requests
     url_params_to_replace = {
         "{address}": "address",
         "{tokenId}": "tokenId",
         "{ownerAddress}": "ownerAddress",
-        "{collectionAddress}": "collectionAddress"
+        "{collectionAddress}": "collectionAddress",
+        "{proposalId}": "proposalId",
+        "{objectId}": "objectId",
+        "{digest}": "digest",
+        "{token}": "token",
     }
     
     params_for_request = parameters.copy()
+    
+    # Prepend BACKEND_URL to relative paths (paths starting with /)
+    if endpoint.startswith("/"):
+        endpoint = f"{BACKEND_URL}{endpoint}"
     
     # Replace URL parameters
     for placeholder, param_name in url_params_to_replace.items():

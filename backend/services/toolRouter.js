@@ -111,6 +111,92 @@ const AVAILABLE_TOOLS = {
     description: 'Gets the details and current vote tally of a governance proposal.',
     parameters: ['proposalId'],
     examples: ['Get proposal details', 'Check vote tally for proposal', 'What is the status of proposal prop_123?']
+  },
+  // ─── Wallet & Transaction Tools ─────────────────────────────────────────────
+  wallet_history: {
+    name: 'wallet_history',
+    description: 'Fetches the recent transaction history for a wallet address on OneChain.',
+    parameters: ['address'],
+    examples: ['Show my transaction history', 'Recent transactions for 0x123...', 'What did this wallet do recently?']
+  },
+  tx_status: {
+    name: 'tx_status',
+    description: 'Checks the status and details of a specific transaction by its digest/hash on OneChain.',
+    parameters: ['digest'],
+    examples: ['Check transaction status', 'Did my tx go through? Digest: 0xabc...', 'Get transaction details for digest 0x...']
+  },
+  token_metadata: {
+    name: 'token_metadata',
+    description: 'Gets metadata and details about a specific token or Move object by its object ID on OneChain.',
+    parameters: ['objectId'],
+    examples: ['Get token info for object 0x...', 'What is this token?', 'Token metadata for 0xabc...']
+  },
+  // ─── Allowance Tools ──────────────────────────────────────────────────────────
+  approve_token: {
+    name: 'approve_token',
+    description: 'Grants a spender address permission to spend a specified token amount on behalf of the user (allowance/approval).',
+    parameters: ['privateKey', 'tokenAddress', 'spenderAddress', 'amount'],
+    examples: ['Approve 100 tokens for spending', 'Grant DEX permission to use my tokens', 'Allow spender to transfer tokens']
+  },
+  revoke_approval: {
+    name: 'revoke_approval',
+    description: 'Revokes a spender\'s token approval, removing their permission to spend tokens on the user\'s behalf.',
+    parameters: ['privateKey', 'tokenAddress', 'spenderAddress'],
+    examples: ['Revoke token approval', 'Remove spending permission for spender', 'Cancel DEX approval']
+  },  // ─── Airdrop / Batch Tools ───────────────────────────────────────────────
+  airdrop: {
+    name: 'airdrop',
+    description: 'Sends OCT to multiple wallet addresses in a single on-chain transaction (batch transfer / airdrop). Much more efficient than individual transfers.',
+    parameters: ['privateKey', 'recipients (array of {address, amount})', 'OR addresses[] + amounts[]'],
+    examples: ['Airdrop 1 OCT each to these 5 wallets', 'Send tokens to multiple addresses', 'Batch transfer OCT to community members']
+  },
+  wrap_oct: {
+    name: 'wrap_oct',
+    description: 'Wraps native OCT tokens. NOTE: Wrapped OCT is not yet available on OneChain mainnet; this will return an informational response.',
+    parameters: ['amount'],
+    examples: ['Wrap 5 OCT', 'Convert OCT to wrapped OCT']
+  },
+  deposit_yield: {
+    name: 'deposit_yield',
+    description: 'Deposits tokens into a yield protocol. NOTE: Native yield protocols on OneChain are still emerging; this returns available alternatives.',
+    parameters: ['amount', 'protocol (optional)'],
+    examples: ['Deposit 100 OCT into yield', 'Earn yield on my OCT tokens']
+  },  // ─── OneChain Ecosystem Tools ─────────────────────────────────────────────────
+  get_swap_quote: {
+    name: 'get_swap_quote',
+    description: 'Gets a price quote for swapping one token to another on ONEDEX (OneChain native DEX). Does NOT execute a transaction.',
+    parameters: ['tokenIn', 'tokenOut', 'amountIn'],
+    examples: ['How much USDT will I get for 10 OCT?', 'Get swap quote for OCT to USDT', 'Quote for swapping 5 OCT to USDC']
+  },
+  swap_tokens: {
+    name: 'swap_tokens',
+    description: 'Executes a token swap on ONEDEX (OneChain native DEX). Requires private key to sign the transaction.',
+    parameters: ['privateKey', 'tokenIn', 'tokenOut', 'amountIn', 'minAmountOut (optional)', 'poolId (optional)'],
+    examples: ['Swap 10 OCT for USDT on ONEDEX', 'Exchange my OCT for USDC', 'Trade 5 OCT on the DEX']
+  },
+  get_dex_pools: {
+    name: 'get_dex_pools',
+    description: 'Lists all available liquidity pools on ONEDEX.',
+    parameters: [],
+    examples: ['Show me ONEDEX pools', 'What pools are available on ONEDEX?', 'List liquidity pools on OneChain DEX']
+  },
+  get_dex_price: {
+    name: 'get_dex_price',
+    description: 'Gets the current on-chain price of a token on ONEDEX.',
+    parameters: ['token'],
+    examples: ['What is the ONEDEX price of OCT?', 'Get on-chain price for this token', 'ONEDEX price of USDT']
+  },
+  cross_border_transfer: {
+    name: 'cross_border_transfer',
+    description: 'Sends a cross-border or fiat-to-crypto transfer using ONETRANSFER on OneChain.',
+    parameters: ['privateKey', 'recipient', 'amount', 'currency', 'targetCurrency (optional)'],
+    examples: ['Send $100 to 0x123... via ONETRANSFER', 'Cross-border transfer 50 USDT to recipient', 'International payment using ONETRANSFER']
+  },
+  check_oneid: {
+    name: 'check_oneid',
+    description: 'Checks whether a wallet address has a verified ONEID (OneChain identity/KYC credential).',
+    parameters: ['address'],
+    examples: ['Does 0x123... have a ONEID?', 'Check if my wallet is ONEID verified', 'Is this address KYC verified on OneChain?']
   }
 };
 

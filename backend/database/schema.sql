@@ -282,6 +282,75 @@ CREATE POLICY "Users can create messages in own conversations"
 -- LIMIT 10;
 
 -- ============================================
+-- 8. GOVERNANCE TABLES
+-- Persistent storage for DAOs, proposals, votes
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS governance_daos (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  dao_id        TEXT UNIQUE NOT NULL,
+  name          TEXT NOT NULL,
+  description   TEXT NOT NULL DEFAULT '',
+  creator       TEXT NOT NULL,
+  voting_period_days  INTEGER NOT NULL DEFAULT 7,
+  quorum_percent      INTEGER NOT NULL DEFAULT 51,
+  on_chain_package_id TEXT,
+  status        TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'archived')),
+  proposal_count      INTEGER NOT NULL DEFAULT 0,
+  members       JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at    TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_governance_daos_creator ON governance_daos(creator);
+
+CREATE TABLE IF NOT EXISTS governance_proposals (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  proposal_id   TEXT UNIQUE NOT NULL,
+  dao_id        TEXT NOT NULL REFERENCES governance_daos(dao_id) ON DELETE CASCADE,
+  dao_name      TEXT NOT NULL,
+  title         TEXT NOT NULL,
+  description   TEXT NOT NULL DEFAULT '',
+  proposer      TEXT NOT NULL,
+  actions       JSONB NOT NULL DEFAULT '[]'::jsonb,
+  status        TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'passed', 'rejected', 'expired', 'executed')),
+  votes_yes     INTEGER NOT NULL DEFAULT 0,
+  votes_no      INTEGER NOT NULL DEFAULT 0,
+  votes_abstain INTEGER NOT NULL DEFAULT 0,
+  ends_at       TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at    TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_governance_proposals_dao ON governance_proposals(dao_id);
+CREATE INDEX IF NOT EXISTS idx_governance_proposals_status ON governance_proposals(status);
+
+CREATE TABLE IF NOT EXISTS governance_votes (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  proposal_id   TEXT NOT NULL REFERENCES governance_proposals(proposal_id) ON DELETE CASCADE,
+  voter_address TEXT NOT NULL,
+  vote          TEXT NOT NULL CHECK (vote IN ('yes', 'no', 'abstain')),
+  created_at    TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at    TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE (proposal_id, voter_address)
+);
+
+CREATE INDEX IF NOT EXISTS idx_governance_votes_proposal ON governance_votes(proposal_id);
+
+-- RLS for governance tables (backend uses service key, no user-level auth needed)
+ALTER TABLE governance_daos      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE governance_proposals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE governance_votes     ENABLE ROW LEVEL SECURITY;
+
+-- Allow full access via service role (used by backend)
+CREATE POLICY "Service role full access on governance_daos"
+  ON governance_daos FOR ALL USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role full access on governance_proposals"
+  ON governance_proposals FOR ALL USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role full access on governance_votes"
+  ON governance_votes FOR ALL USING (true) WITH CHECK (true);
+
+-- ============================================
 -- SCHEMA CREATION COMPLETE
 -- ============================================
 

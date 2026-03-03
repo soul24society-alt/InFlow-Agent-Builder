@@ -155,4 +155,65 @@ async function prepareTransfer(req, res) {
   }
 }
 
-module.exports = { transfer, transferToken, getBalance, prepareTransfer };
+/**
+ * Airdrop OCT to multiple recipients in a single PTB.
+ * Body: { privateKey, recipients: [{address, amount}] }
+ * Optionally: { privateKey, addresses: ['0x...'], amounts: [1, 2] }
+ */
+async function airdrop(req, res) {
+  try {
+    let { privateKey, recipients, addresses, amounts } = req.body;
+
+    // Support both formats: recipients array or parallel addresses/amounts arrays
+    if (!recipients && addresses && amounts) {
+      recipients = addresses.map((addr, i) => ({ address: addr, amount: amounts[i] }));
+    }
+
+    if (!privateKey) return res.status(400).json(errorResponse('privateKey is required'));
+    if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
+      return res.status(400).json(errorResponse('recipients array is required (e.g. [{address, amount}])'));
+    }
+
+    const keypair = getKeypair(privateKey);
+    const senderAddress = keypair.toSuiAddress();
+    logTransaction('Airdrop OCT', { recipientCount: recipients.length, sender: senderAddress });
+
+    const total = recipients.reduce((sum, r) => sum + parseFloat(r.amount || 0), 0);
+    const balInfo = await getWalletBalance(senderAddress);
+    const totalMist = octToMist(String(total));
+    if (BigInt(balInfo.totalBalance) < totalMist) {
+      return res.status(400).json(errorResponse('Insufficient OCT balance for airdrop', {
+        balance: balInfo.formatted,
+        required: total + ' OCT',
+      }));
+    }
+
+    const tx = new Transaction();
+    // Split all amounts in one call — much cheaper than individual transactions
+    const splitAmounts = recipients.map(r => tx.pure.u64(octToMist(String(r.amount))));
+    const coins = tx.splitCoins(tx.gas, splitAmounts);
+    recipients.forEach((r, i) => {
+      tx.transferObjects([coins[i]], tx.pure.address(r.address));
+    });
+
+    const result = await executeTransaction(tx, keypair);
+    const digest = result.digest;
+
+    return res.json(successResponse({
+      type: 'airdrop',
+      transactionDigest: digest,
+      from: senderAddress,
+      recipientCount: recipients.length,
+      totalAmount: String(total),
+      currency: NATIVE_TOKEN,
+      network: ACTIVE_NETWORK,
+      explorerUrl: getTxExplorerUrl(digest),
+      recipients: recipients.map(r => ({ address: r.address, amount: String(r.amount) })),
+    }));
+  } catch (error) {
+    console.error('Airdrop error:', error);
+    return res.status(500).json(errorResponse(error.message));
+  }
+}
+
+module.exports = { transfer, transferToken, getBalance, prepareTransfer, airdrop };

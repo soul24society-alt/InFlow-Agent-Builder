@@ -68,6 +68,8 @@ export default function MyAgents() {
   const [copiedItem, setCopiedItem] = useState<string | null>(null)
   const [walletModalOpen, setWalletModalOpen] = useState(false)
 
+  const AGENT_ENDPOINT = (process.env.NEXT_PUBLIC_AI_AGENT_BACKEND_URL || "http://localhost:8000") + "/agent/chat"
+
   useEffect(() => {
     if (ready && !authenticated) {
       router.replace("/")
@@ -361,7 +363,7 @@ export default function MyAgents() {
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="text-[10px] font-mono h-5 shrink-0">POST</Badge>
                   <code className="text-xs font-mono text-foreground">
-                    http://localhost:8000/agent/chat
+                    {AGENT_ENDPOINT}
                   </code>
                 </div>
               </div>
@@ -409,8 +411,9 @@ export default function MyAgents() {
                 <TabsContent value="curl" className="mt-3">
                   <div className="relative">
                     <pre className="rounded-md border border-border bg-muted/30 p-3 overflow-x-auto text-[11px] font-mono leading-relaxed text-foreground">
-{`curl -X POST http://localhost:8000/agent/chat \\
+{`curl -X POST ${AGENT_ENDPOINT} \\
   -H "Content-Type: application/json" \\
+  -H "X-API-Key: ${selectedAgentForExport?.api_key || 'YOUR_API_KEY'}" \\
   -d '{
     "tools": ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_token", next_tool: null }], null, 2).split("\n").map((l, i) => (i === 0 ? l : "    " + l)).join("\n")},
     "user_message": "Deploy a token called MyToken",
@@ -422,7 +425,7 @@ export default function MyAgents() {
                       size="icon"
                       className="absolute top-2 right-2 h-7 w-7"
                       onClick={() => {
-                        const cmd = `curl -X POST http://localhost:8000/agent/chat \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "tools": ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_token", next_tool: null }])},\n    "user_message": "Deploy a token called MyToken",\n    "private_key": "YOUR_PRIVATE_KEY"\n  }'`
+                        const cmd = `curl -X POST ${AGENT_ENDPOINT} \\\n  -H "Content-Type: application/json" \\\n  -H "X-API-Key: ${selectedAgentForExport?.api_key || 'YOUR_API_KEY'}" \\\n  -d '{\n    "tools": ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_token", next_tool: null }])},\n    "user_message": "Deploy a token called MyToken",\n    "private_key": "YOUR_PRIVATE_KEY"\n  }'`
                         copyToClipboard(cmd, "cURL")
                       }}
                     >
@@ -434,9 +437,12 @@ export default function MyAgents() {
                 <TabsContent value="js" className="mt-3">
                   <div className="relative">
                     <pre className="rounded-md border border-border bg-muted/30 p-3 overflow-x-auto text-[11px] font-mono leading-relaxed text-foreground">
-{`const response = await fetch("http://localhost:8000/agent/chat", {
+{`const response = await fetch("${AGENT_ENDPOINT}", {
   method: "POST",
-  headers: { "Content-Type": "application/json" },
+  headers: {
+    "Content-Type": "application/json",
+    "X-API-Key": "${selectedAgentForExport?.api_key || 'YOUR_API_KEY'}",
+  },
   body: JSON.stringify({
     tools: ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_token", next_tool: null }])},
     user_message: "Deploy a token called MyToken",
@@ -452,7 +458,7 @@ console.log(data);`}
                       size="icon"
                       className="absolute top-2 right-2 h-7 w-7"
                       onClick={() => {
-                        const js = `const response = await fetch("http://localhost:8000/agent/chat", {\n  method: "POST",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify({\n    tools: ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_token", next_tool: null }])},\n    user_message: "Deploy a token called MyToken",\n    private_key: "YOUR_PRIVATE_KEY",\n  }),\n});\n\nconst data = await response.json();\nconsole.log(data);`
+                        const js = `const response = await fetch("${AGENT_ENDPOINT}", {\n  method: "POST",\n  headers: {\n    "Content-Type": "application/json",\n    "X-API-Key": "${selectedAgentForExport?.api_key || 'YOUR_API_KEY'}",\n  },\n  body: JSON.stringify({\n    tools: ${JSON.stringify(selectedAgentForExport?.tools || [{ tool: "deploy_token", next_tool: null }])},\n    user_message: "Deploy a token called MyToken",\n    private_key: "YOUR_PRIVATE_KEY",\n  }),\n});\n\nconst data = await response.json();\nconsole.log(data);`
                         copyToClipboard(js, "JavaScript")
                       }}
                     >

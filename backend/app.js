@@ -8,7 +8,7 @@ const transferRoutes = require('./routes/transferRoutes');
 const healthRoutes = require('./routes/healthRoutes');
 const priceRoutes = require('./routes/priceRoutes');
 const nlExecutorRoutes = require('./routes/nlExecutorRoutes');
-const orbitRoutes = require('./routes/orbitRoutes');
+// orbitRoutes intentionally not imported — see comment below
 const conversationRoutes = require('./routes/conversationRoutes');
 const walletRoutes = require('./routes/walletRoutes');
 const allowanceRoutes = require('./routes/allowanceRoutes');
@@ -16,6 +16,8 @@ const contractChatRoutes = require('./routes/contractChatRoutes');
 const emailRoutes = require('./routes/emailRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const governanceRoutes = require('./routes/governanceRoutes');
+const dexRoutes = require('./routes/dexRoutes');
+// Note: orbitRoutes kept in repo but not mounted (Arbitrum Orbit L3 not applicable to OneChain)
 
 // Initialize Express app
 const app = express();
@@ -48,7 +50,6 @@ app.use('/nft', nftRoutes);
 app.use('/transfer', transferRoutes);
 app.use('/price', priceRoutes);
 app.use('/nl-executor', nlExecutorRoutes);
-app.use('/api/orbit', orbitRoutes);
 app.use('/api', conversationRoutes);
 app.use('/wallet', walletRoutes);
 app.use('/allowance', allowanceRoutes);
@@ -56,7 +57,8 @@ app.use('/contract-chat', contractChatRoutes);
 app.use('/email', emailRoutes);
 app.use('/webhook', webhookRoutes);
 app.use('/governance', governanceRoutes);
-
+app.use('/dex', dexRoutes);
+// app.use('/api/orbit', orbitRoutes); // Removed — Arbitrum Orbit L3 not applicable on OneChain
 // Legacy / convenience routes
 app.post('/deploy-token', require('./controllers/tokenController').deployToken);
 app.post('/deploy-nft-collection', require('./controllers/nftController').deployNFTCollection);

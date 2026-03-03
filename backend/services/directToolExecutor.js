@@ -17,11 +17,30 @@ const TOOL_ENDPOINTS = {
   calculate: { method: 'LOCAL' },
   condition_check: { method: 'LOCAL' },
   yes_no_answer: { method: 'LOCAL' },
+  airdrop: { method: 'POST', path: '/transfer/airdrop' },
+  wrap_oct: { method: 'LOCAL' },
+  deposit_yield: { method: 'LOCAL' },
   send_webhook: { method: 'POST', path: '/webhook/send' },
   create_dao: { method: 'POST', path: '/governance/create-dao' },
   create_proposal: { method: 'POST', path: '/governance/proposal' },
   vote_on_proposal: { method: 'POST', path: '/governance/vote' },
-  get_proposal: { method: 'GET', path: '/governance/proposal/{proposalId}' }
+  get_proposal: { method: 'GET', path: '/governance/proposal/{proposalId}' },
+  // Wallet & transaction tools
+  wallet_history: { method: 'GET', path: '/wallet/history/{address}' },
+  tx_status: { method: 'GET', path: '/wallet/tx/{digest}' },
+  token_metadata: { method: 'GET', path: '/token/info/{objectId}' },
+  // Allowance tools
+  approve_token: { method: 'POST', path: '/allowance/approve' },
+  revoke_approval: { method: 'POST', path: '/allowance/revoke' },
+  // swap (legacy alias → ONEDEX swap)
+  swap: { method: 'POST', path: '/dex/swap' },
+  // ONEDEX / OneChain ecosystem tools
+  get_swap_quote: { method: 'POST', path: '/dex/quote' },
+  swap_tokens: { method: 'POST', path: '/dex/swap' },
+  get_dex_pools: { method: 'GET', path: '/dex/pools' },
+  get_dex_price: { method: 'GET', path: '/dex/price/{token}' },
+  cross_border_transfer: { method: 'POST', path: '/dex/cross-transfer' },
+  check_oneid: { method: 'GET', path: '/dex/oneid/{address}' }
 };
 
 function mapToolParams(tool, params = {}, fallbackMessage) {
@@ -151,6 +170,32 @@ function mapToolParams(tool, params = {}, fallbackMessage) {
       if (!answer) missing.push('answer');
       break;
     }
+    case 'airdrop': {
+      const privateKey = params.privateKey || params.private_key;
+      const recipients = params.recipients || [];
+      // Also handle flat arrays
+      if (!recipients.length && params.addresses && params.amounts) {
+        mapped = { privateKey, addresses: params.addresses, amounts: params.amounts };
+      } else {
+        mapped = { privateKey, recipients };
+      }
+      if (!privateKey) missing.push('privateKey');
+      if (!recipients.length && !(params.addresses && params.amounts)) missing.push('recipients');
+      break;
+    }
+    case 'wrap_oct': {
+      const amount = params.amount;
+      mapped = { amount };
+      if (!amount) missing.push('amount');
+      break;
+    }
+    case 'deposit_yield': {
+      const amount = params.amount;
+      const protocol = params.protocol || params.pool;
+      mapped = { amount, protocol };
+      if (!amount) missing.push('amount');
+      break;
+    }
     case 'send_webhook': {
       const url = params.url;
       const payload = params.payload || params.data || {};
@@ -204,6 +249,114 @@ function mapToolParams(tool, params = {}, fallbackMessage) {
       if (!proposalId) missing.push('proposalId');
       break;
     }
+    case 'wallet_history': {
+      const address = params.address || params.wallet_address;
+      mapped = { address };
+      if (!address) missing.push('address');
+      break;
+    }
+    case 'tx_status': {
+      const digest = params.digest || params.tx_hash || params.txHash || params.transaction_hash;
+      mapped = { digest };
+      if (!digest) missing.push('digest');
+      break;
+    }
+    case 'token_metadata': {
+      const objectId = params.objectId || params.object_id || params.tokenId || params.token_id || params.token_address;
+      mapped = { objectId };
+      if (!objectId) missing.push('objectId');
+      break;
+    }
+    case 'approve_token': {
+      const privateKey = params.privateKey || params.private_key;
+      const tokenAddress = params.tokenAddress || params.token_address;
+      const spenderAddress = params.spenderAddress || params.spender_address || params.spender;
+      const amount = params.amount;
+      mapped = { privateKey, tokenAddress, spenderAddress, amount };
+      if (!privateKey) missing.push('privateKey');
+      if (!tokenAddress) missing.push('tokenAddress');
+      if (!spenderAddress) missing.push('spenderAddress');
+      if (!amount) missing.push('amount');
+      break;
+    }
+    case 'revoke_approval': {
+      const privateKey = params.privateKey || params.private_key;
+      const tokenAddress = params.tokenAddress || params.token_address;
+      const spenderAddress = params.spenderAddress || params.spender_address || params.spender;
+      mapped = { privateKey, tokenAddress, spenderAddress };
+      if (!privateKey) missing.push('privateKey');
+      if (!tokenAddress) missing.push('tokenAddress');
+      if (!spenderAddress) missing.push('spenderAddress');
+      break;
+    }
+    case 'swap': {
+      // Legacy alias — same shape as swap_tokens
+      const privateKey = params.privateKey || params.private_key;
+      const tokenIn = params.tokenIn || params.token_in || params.from_token;
+      const tokenOut = params.tokenOut || params.token_out || params.to_token;
+      const amountIn = params.amountIn || params.amount_in || params.amount;
+      mapped = { privateKey, tokenIn, tokenOut, amountIn };
+      if (!privateKey) missing.push('privateKey');
+      if (!tokenIn) missing.push('tokenIn');
+      if (!tokenOut) missing.push('tokenOut');
+      if (!amountIn) missing.push('amountIn');
+      break;
+    }
+    case 'get_swap_quote': {
+      const tokenIn = params.tokenIn || params.token_in;
+      const tokenOut = params.tokenOut || params.token_out;
+      const amountIn = params.amountIn || params.amount_in || params.amount;
+      mapped = { tokenIn, tokenOut, amountIn };
+      if (!tokenIn) missing.push('tokenIn');
+      if (!tokenOut) missing.push('tokenOut');
+      if (!amountIn) missing.push('amountIn');
+      break;
+    }
+    case 'swap_tokens': {
+      const privateKey = params.privateKey || params.private_key;
+      const tokenIn = params.tokenIn || params.token_in;
+      const tokenOut = params.tokenOut || params.token_out;
+      const amountIn = params.amountIn || params.amount_in || params.amount;
+      const minAmountOut = params.minAmountOut || params.min_amount_out;
+      const poolId = params.poolId || params.pool_id;
+      mapped = { privateKey, tokenIn, tokenOut, amountIn };
+      if (minAmountOut) mapped.minAmountOut = minAmountOut;
+      if (poolId) mapped.poolId = poolId;
+      if (!privateKey) missing.push('privateKey');
+      if (!tokenIn) missing.push('tokenIn');
+      if (!tokenOut) missing.push('tokenOut');
+      if (!amountIn) missing.push('amountIn');
+      break;
+    }
+    case 'get_dex_pools': {
+      mapped = {};
+      break;
+    }
+    case 'get_dex_price': {
+      const token = params.token || params.token_address || params.symbol;
+      mapped = { token };
+      if (!token) missing.push('token');
+      break;
+    }
+    case 'cross_border_transfer': {
+      const privateKey = params.privateKey || params.private_key;
+      const recipient = params.recipient || params.to_address || params.toAddress;
+      const amount = params.amount;
+      const currency = params.currency || params.token || 'OCT';
+      const targetCurrency = params.targetCurrency || params.target_currency;
+      mapped = { privateKey, recipient, amount, currency };
+      if (targetCurrency) mapped.targetCurrency = targetCurrency;
+      if (!privateKey) missing.push('privateKey');
+      if (!recipient) missing.push('recipient');
+      if (!amount) missing.push('amount');
+      break;
+    }
+    case 'check_oneid': {
+      const address = params.address || params.wallet_address;
+      mapped = { address };
+      if (!address) missing.push('address');
+      break;
+    }
     default:
       break;
   }
@@ -218,7 +371,10 @@ function replacePathParams(path, params) {
     '{tokenId}': 'tokenId',
     '{ownerAddress}': 'ownerAddress',
     '{collectionAddress}': 'collectionAddress',
-    '{proposalId}': 'proposalId'
+    '{proposalId}': 'proposalId',
+    '{token}': 'token',
+    '{digest}': 'digest',
+    '{objectId}': 'objectId'
   };
 
   Object.entries(replacements).forEach(([placeholder, key]) => {
@@ -462,6 +618,28 @@ async function executeToolStep(step, fallbackMessage) {
     return {
       tool_call: { tool, parameters: mapping.mapped },
       result: safeYesNoAnswer(mapping.mapped)
+    };
+  }
+
+  if (config.method === 'LOCAL' && tool === 'wrap_oct') {
+    return {
+      tool_call: { tool, parameters: mapping.mapped },
+      result: {
+        success: false,
+        message: 'wrap_oct is not yet available on OneChain. OCT is the native gas token and does not currently have a wrapped on-chain version. Check back as the OneChain DeFi ecosystem grows, or use ONEDEX to swap OCT for other tokens.',
+        suggestion: 'Use swap_tokens or get_swap_quote to trade OCT on ONEDEX instead.'
+      }
+    };
+  }
+
+  if (config.method === 'LOCAL' && tool === 'deposit_yield') {
+    return {
+      tool_call: { tool, parameters: mapping.mapped },
+      result: {
+        success: false,
+        message: 'deposit_yield is not yet available on OneChain. Native yield/lending protocols on OneChain are still emerging. Check ONEDEX for liquidity provision opportunities.',
+        suggestion: 'Swap tokens on ONEDEX or check get_dex_pools for liquidity pool opportunities.'
+      }
     };
   }
 

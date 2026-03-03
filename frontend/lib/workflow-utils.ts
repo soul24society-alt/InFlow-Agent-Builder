@@ -12,10 +12,12 @@ export const createNode = ({
   type,
   position,
   id,
+  config,
 }: {
   type: string
   position: XYPosition
   id: string
+  config?: Record<string, any>
 }): Node<NodeData> => {
   return {
     id,
@@ -24,7 +26,7 @@ export const createNode = ({
     data: {
       label: getDefaultLabel(type),
       description: getDefaultDescription(type),
-      config: {},
+      config: config ?? {},
     },
   }
 }

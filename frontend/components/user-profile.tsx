@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Copy, Check, LogOut, User as UserIcon, Key } from "lucide-react"
+import { Copy, Check, LogOut, User as UserIcon, Key, Droplets } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
 import { PrivateKeySetupModal } from "./private-key-setup-modal"
@@ -24,6 +24,7 @@ export function UserProfile({ onLogout }: UserProfileProps) {
   const { user, dbUser, isWalletLogin, privyWalletAddress, syncUser } = useAuth()
   const [copied, setCopied] = useState(false)
   const [showPrivateKeyModal, setShowPrivateKeyModal] = useState(false)
+  const [fauceting, setFauceting] = useState(false)
 
   // Get wallet address - check multiple sources
   const getWalletAddress = () => {
@@ -51,6 +52,27 @@ export function UserProfile({ onLogout }: UserProfileProps) {
       return user.id.substring(0, 2).toUpperCase()
     }
     return "U"
+  }
+
+  const requestFaucet = async () => {
+    if (!walletAddress || fauceting) return
+    setFauceting(true)
+    try {
+      const res = await fetch('https://faucet-testnet.onelabs.cc/v1/gas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ FixedAmountRequest: { recipient: walletAddress } }),
+      })
+      if (res.ok) {
+        toast({ title: 'Faucet requested', description: 'Testnet OCT is on its way!' })
+      } else {
+        toast({ title: 'Faucet unavailable', description: 'Try again later or visit faucet-testnet.onelabs.cc', variant: 'destructive' })
+      }
+    } catch {
+      toast({ title: 'Faucet error', description: 'Could not reach the faucet. Check your connection.', variant: 'destructive' })
+    } finally {
+      setFauceting(false)
+    }
   }
 
   const copyWalletAddress = () => {
@@ -109,6 +131,11 @@ export function UserProfile({ onLogout }: UserProfileProps) {
                 <code className="text-xs text-muted-foreground font-mono break-all">
                   {walletAddress}
                 </code>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={requestFaucet} disabled={fauceting} className="cursor-pointer">
+                <Droplets className="mr-2 h-4 w-4" />
+                <span>{fauceting ? 'Requesting OCT…' : 'Get Testnet OCT'}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
