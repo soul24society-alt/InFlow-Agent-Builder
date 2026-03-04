@@ -131,37 +131,14 @@ const AVAILABLE_TOOLS = {
     parameters: ['objectId'],
     examples: ['Get token info for object 0x...', 'What is this token?', 'Token metadata for 0xabc...']
   },
-  // ─── Allowance Tools ──────────────────────────────────────────────────────────
-  approve_token: {
-    name: 'approve_token',
-    description: 'Grants a spender address permission to spend a specified token amount on behalf of the user (allowance/approval).',
-    parameters: ['privateKey', 'tokenAddress', 'spenderAddress', 'amount'],
-    examples: ['Approve 100 tokens for spending', 'Grant DEX permission to use my tokens', 'Allow spender to transfer tokens']
-  },
-  revoke_approval: {
-    name: 'revoke_approval',
-    description: 'Revokes a spender\'s token approval, removing their permission to spend tokens on the user\'s behalf.',
-    parameters: ['privateKey', 'tokenAddress', 'spenderAddress'],
-    examples: ['Revoke token approval', 'Remove spending permission for spender', 'Cancel DEX approval']
-  },  // ─── Airdrop / Batch Tools ───────────────────────────────────────────────
+  // ─── Airdrop / Batch Tools ───────────────────────────────────────────────
   airdrop: {
     name: 'airdrop',
     description: 'Sends OCT to multiple wallet addresses in a single on-chain transaction (batch transfer / airdrop). Much more efficient than individual transfers.',
     parameters: ['privateKey', 'recipients (array of {address, amount})', 'OR addresses[] + amounts[]'],
     examples: ['Airdrop 1 OCT each to these 5 wallets', 'Send tokens to multiple addresses', 'Batch transfer OCT to community members']
   },
-  wrap_oct: {
-    name: 'wrap_oct',
-    description: 'Wraps native OCT tokens. NOTE: Wrapped OCT is not yet available on OneChain mainnet; this will return an informational response.',
-    parameters: ['amount'],
-    examples: ['Wrap 5 OCT', 'Convert OCT to wrapped OCT']
-  },
-  deposit_yield: {
-    name: 'deposit_yield',
-    description: 'Deposits tokens into a yield protocol. NOTE: Native yield protocols on OneChain are still emerging; this returns available alternatives.',
-    parameters: ['amount', 'protocol (optional)'],
-    examples: ['Deposit 100 OCT into yield', 'Earn yield on my OCT tokens']
-  },  // ─── OneChain Ecosystem Tools ─────────────────────────────────────────────────
+  // ─── OneChain Ecosystem Tools ─────────────────────────────────────────────────
   get_swap_quote: {
     name: 'get_swap_quote',
     description: 'Gets a price quote for swapping one token to another on ONEDEX (OneChain native DEX). Does NOT execute a transaction.',

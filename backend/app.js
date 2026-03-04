@@ -11,7 +11,6 @@ const nlExecutorRoutes = require('./routes/nlExecutorRoutes');
 // orbitRoutes intentionally not imported — see comment below
 const conversationRoutes = require('./routes/conversationRoutes');
 const walletRoutes = require('./routes/walletRoutes');
-const allowanceRoutes = require('./routes/allowanceRoutes');
 const contractChatRoutes = require('./routes/contractChatRoutes');
 const emailRoutes = require('./routes/emailRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
@@ -52,7 +51,6 @@ app.use('/price', priceRoutes);
 app.use('/nl-executor', nlExecutorRoutes);
 app.use('/api', conversationRoutes);
 app.use('/wallet', walletRoutes);
-app.use('/allowance', allowanceRoutes);
 app.use('/contract-chat', contractChatRoutes);
 app.use('/email', emailRoutes);
 app.use('/webhook', webhookRoutes);

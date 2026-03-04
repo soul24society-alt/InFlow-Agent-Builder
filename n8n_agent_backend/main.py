@@ -287,38 +287,6 @@ TOOL_DEFINITIONS = {
         "endpoint": "/transfer/airdrop",
         "method": "POST"
     },
-    # ── Allowances ───────────────────────────────────────────────────────────
-    "approve_token": {
-        "name": "approve_token",
-        "description": "Grant a spender address permission to spend tokens on behalf of the user.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "privateKey": {"type": "string", "description": "Ed25519 private key of the token owner"},
-                "tokenAddress": {"type": "string", "description": "Token object ID or package address"},
-                "spenderAddress": {"type": "string", "description": "Address to grant spending permission to"},
-                "amount": {"type": "string", "description": "Amount to approve"}
-            },
-            "required": ["privateKey", "tokenAddress", "spenderAddress", "amount"]
-        },
-        "endpoint": "/allowance/approve",
-        "method": "POST"
-    },
-    "revoke_approval": {
-        "name": "revoke_approval",
-        "description": "Revoke a spender's token approval, removing their permission to transfer tokens.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "privateKey": {"type": "string", "description": "Ed25519 private key of the token owner"},
-                "tokenAddress": {"type": "string", "description": "Token object ID"},
-                "spenderAddress": {"type": "string", "description": "Address whose approval is being revoked"}
-            },
-            "required": ["privateKey", "tokenAddress", "spenderAddress"]
-        },
-        "endpoint": "/allowance/revoke",
-        "method": "POST"
-    },
     # ── Governance / DAO ──────────────────────────────────────────────────────
     "create_dao": {
         "name": "create_dao",
@@ -1761,8 +1729,6 @@ AVAILABLE TOOLS:
 - send_email: Send email notifications to recipients
 - airdrop: Send tokens to multiple addresses at once
 - swap: Swap one token for another
-- deposit_yield: Deposit tokens to earn yield
-- wrap_oct: Wrap OCT tokens
 - get_token_info: Get information about a deployed token (name, symbol, supply)
 - get_token_balance: Get token balance for a specific wallet
 - get_nft_info: Get information about an NFT collection or specific NFT
@@ -1773,8 +1739,6 @@ AVAILABLE TOOLS:
 - create_proposal: Create a governance proposal in a DAO
 - vote_on_proposal: Cast a yes/no/abstain vote on a DAO proposal
 - get_proposal: Fetch details and vote tally of a governance proposal
-- approve_token: Grant token spending approval to a contract
-- revoke_approval: Revoke a token spending approval
 - tx_status: Check confirmation status of a transaction
 - wallet_history: Fetch recent transaction history for a wallet
 
