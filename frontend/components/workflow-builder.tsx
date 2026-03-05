@@ -35,6 +35,7 @@ import { UserProfile } from "./user-profile"
 import { useAuth } from "@/lib/auth"
 import { createAgent, getAgentById, updateAgent } from "@/lib/agents"
 import { workflowToTools, toolsToWorkflow } from "@/lib/workflow-converter"
+import type { AgentTemplate } from "@/lib/agent-templates"
 import AIQuotaCompact from "./payment/ai-quota-compact"
 import {
   AlertDialog,
@@ -363,7 +364,38 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
     }
   }
 
+  const handleApplyTemplate = useCallback(
+    (template: AgentTemplate) => {
+      const { nodes: tplNodes, edges: tplEdges } = toolsToWorkflow(template.tools, AGENT_NODE_ID)
+      const agentNode = createAgentNode()
+      const allNodes = [agentNode, ...tplNodes]
 
+      const nodesWithIncoming = new Set<string>()
+      tplEdges.forEach((edge) => nodesWithIncoming.add(edge.target))
+
+      const agentEdges: Edge[] = tplNodes
+        .filter((node) => !nodesWithIncoming.has(node.id))
+        .map((node) => ({
+          id: `edge-${AGENT_NODE_ID}-${node.id}`,
+          source: AGENT_NODE_ID,
+          target: node.id,
+          type: "custom" as const,
+        }))
+
+      setNodes(allNodes)
+      setEdges([...agentEdges, ...tplEdges])
+
+      setTimeout(() => {
+        reactFlowInstance?.fitView({ padding: 0.2 })
+      }, 100)
+
+      toast({
+        title: `${template.emoji} Template applied`,
+        description: `"${template.name}" loaded onto the canvas`,
+      })
+    },
+    [reactFlowInstance, setNodes, setEdges],
+  )
 
   const handleBackClick = () => {
     // Check for unsaved changes (excluding agent node)
@@ -446,7 +478,7 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
       {/* Desktop Sidebar */}
       <div className="hidden md:flex w-64 border-r border-gray-200 flex-col bg-gray-50">
         <div className="flex-1 p-4 overflow-y-auto">
-          <NodeLibrary />
+          <NodeLibrary onApplyTemplate={handleApplyTemplate} />
         </div>
         
         {/* AI Quota at bottom of sidebar */}
@@ -472,7 +504,7 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
               </button>
             </div>
             <div className="flex-1 p-4 overflow-y-auto">
-              <NodeLibrary />
+              <NodeLibrary onApplyTemplate={handleApplyTemplate} />
             </div>
             <div className="border-t border-gray-200 p-3">
               <AIQuotaCompact />

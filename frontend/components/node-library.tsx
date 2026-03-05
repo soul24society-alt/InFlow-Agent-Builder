@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { useState } from "react"
 import {
   ArrowRightLeft,
   Wallet,
@@ -8,12 +9,9 @@ import {
   Image as ImageIcon,
   Sparkles,
   TrendingUp,
-  Repeat,
   FileText,
   Clock,
   History,
-  CheckCircle,
-  XCircle,
   Mail,
   ToggleLeft,
   ThumbsUp,
@@ -28,7 +26,10 @@ import {
   BarChart2,
   Globe,
   ShieldCheck,
+  Zap,
 } from "lucide-react"
+import { AGENT_TEMPLATES, CATEGORY_LABELS } from "@/lib/agent-templates"
+import type { AgentTemplate } from "@/lib/agent-templates"
 
 const toolTypes = [
   {
@@ -68,12 +69,6 @@ const toolTypes = [
     icon: TrendingUp,
   },
   {
-    type: "wrap_oct",
-    label: "Wrap OCT",
-    description: "Wrap OCT tokens",
-    icon: Repeat,
-  },
-  {
     type: "token_metadata",
     label: "Token Metadata",
     description: "Get token info",
@@ -90,18 +85,6 @@ const toolTypes = [
     label: "Wallet History",
     description: "Fetch recent transactions",
     icon: History,
-  },
-  {
-    type: "approve_token",
-    label: "Approve Token",
-    description: "Grant spending approval",
-    icon: CheckCircle,
-  },
-  {
-    type: "revoke_approval",
-    label: "Revoke Approval",
-    description: "Remove token allowance",
-    icon: XCircle,
   },
   {
     type: "send_email",
@@ -190,56 +173,149 @@ const toolTypes = [
   },
 ]
 
-export default function NodeLibrary() {
+interface NodeLibraryProps {
+  onApplyTemplate?: (template: AgentTemplate) => void
+}
+
+export default function NodeLibrary({ onApplyTemplate }: NodeLibraryProps) {
+  const [activeTab, setActiveTab] = useState<"tools" | "templates">("tools")
+
   const onDragStart = (event: React.DragEvent<HTMLDivElement>, toolType: string) => {
     event.dataTransfer.setData("application/reactflow", toolType)
     event.dataTransfer.effectAllowed = "move"
   }
 
+  const categoryOrder: AgentTemplate["category"][] = ["gamefi", "defi", "automation"]
+  const grouped = categoryOrder.reduce<Record<string, AgentTemplate[]>>((acc, cat) => {
+    acc[cat] = AGENT_TEMPLATES.filter((t) => t.category === cat)
+    return acc
+  }, {})
+
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-neutral-200">
-        <h2 className="text-sm font-medium text-neutral-900 tracking-tight">Tools</h2>
+      {/* Tab Header */}
+      <div className="flex border-b border-neutral-200">
+        <button
+          onClick={() => setActiveTab("tools")}
+          className={`flex-1 px-3 py-2.5 text-xs font-medium tracking-tight transition-colors ${
+            activeTab === "tools"
+              ? "text-neutral-900 border-b-2 border-neutral-900 bg-white"
+              : "text-neutral-500 hover:text-neutral-700"
+          }`}
+        >
+          Tools
+        </button>
+        <button
+          onClick={() => setActiveTab("templates")}
+          className={`flex-1 px-3 py-2.5 text-xs font-medium tracking-tight transition-colors flex items-center justify-center gap-1.5 ${
+            activeTab === "templates"
+              ? "text-neutral-900 border-b-2 border-neutral-900 bg-white"
+              : "text-neutral-500 hover:text-neutral-700"
+          }`}
+        >
+          <Zap className="h-3 w-3" strokeWidth={2} />
+          Templates
+        </button>
       </div>
 
-      {/* Tools List */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-2 space-y-1">
-          {toolTypes.map((tool) => {
-            const Icon = tool.icon
-            return (
-              <div
-                key={tool.type}
-                draggable={true}
-                onDragStart={(e) => onDragStart(e, tool.type)}
-                className="group cursor-grab active:cursor-grabbing px-3 py-2.5 rounded border border-neutral-200 bg-white hover:border-neutral-400 hover:shadow-sm transition-all duration-150"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 text-neutral-600 group-hover:text-neutral-900 transition-colors">
-                    <Icon className="h-4 w-4" strokeWidth={1.5} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-neutral-900 tracking-tight">
-                      {tool.label}
+      {/* Tools Tab */}
+      {activeTab === "tools" && (
+        <>
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-2 space-y-1">
+              {toolTypes.map((tool) => {
+                const Icon = tool.icon
+                return (
+                  <div
+                    key={tool.type}
+                    draggable={true}
+                    onDragStart={(e) => onDragStart(e, tool.type)}
+                    className="group cursor-grab active:cursor-grabbing px-3 py-2.5 rounded border border-neutral-200 bg-white hover:border-neutral-400 hover:shadow-sm transition-all duration-150"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 text-neutral-600 group-hover:text-neutral-900 transition-colors">
+                        <Icon className="h-4 w-4" strokeWidth={1.5} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-neutral-900 tracking-tight">
+                          {tool.label}
+                        </div>
+                        <div className="text-xs text-neutral-500 mt-0.5">
+                          {tool.description}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-xs text-neutral-500 mt-0.5">
-                      {tool.description}
-                    </div>
                   </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
+                )
+              })}
+            </div>
+          </div>
+          <div className="px-4 py-3 border-t border-neutral-200 bg-neutral-50">
+            <p className="text-xs text-neutral-500 leading-relaxed">
+              Drag and drop tools to build your Agent
+            </p>
+          </div>
+        </>
+      )}
 
-      {/* Footer */}
-      <div className="px-4 py-3 border-t border-neutral-200 bg-neutral-50">
-        <p className="text-xs text-neutral-500 leading-relaxed">
-          Drag and drop tools to build your Agent
-        </p>
-      </div>
+      {/* Templates Tab */}
+      {activeTab === "templates" && (
+        <>
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-2 space-y-4">
+              {categoryOrder.map((cat) => {
+                const templates = grouped[cat]
+                if (!templates?.length) return null
+                return (
+                  <div key={cat}>
+                    <div className="px-1 pb-1.5 pt-1">
+                      <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest">
+                        {CATEGORY_LABELS[cat]}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {templates.map((template) => (
+                        <button
+                          key={template.id}
+                          onClick={() => onApplyTemplate?.(template)}
+                          className="w-full text-left px-3 py-2.5 rounded border border-neutral-200 bg-white hover:border-neutral-400 hover:shadow-sm transition-all duration-150 group"
+                        >
+                          <div className="flex items-start gap-2.5">
+                            <span className="text-base leading-none mt-0.5">{template.emoji}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-neutral-900 tracking-tight group-hover:text-neutral-900">
+                                {template.name}
+                              </div>
+                              <div className="text-xs text-neutral-500 mt-0.5 leading-relaxed">
+                                {template.description}
+                              </div>
+                              <div className="flex gap-1 mt-1.5 flex-wrap">
+                                {template.tools.map((t, i) => (
+                                  <span
+                                    key={i}
+                                    className="inline-block text-[10px] px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-500 font-mono"
+                                  >
+                                    {t.tool}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+          <div className="px-4 py-3 border-t border-neutral-200 bg-neutral-50">
+            <p className="text-xs text-neutral-500 leading-relaxed">
+              Click a template to load it onto the canvas
+            </p>
+          </div>
+        </>
+      )}
     </div>
   )
 }

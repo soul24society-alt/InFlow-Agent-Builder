@@ -98,7 +98,8 @@ Strong "potential beyond the hackathon" story for judges.
 | 3. AI generates workflow DAG | **Agent Builder** (existing) |
 | 4. Agent deploys with name `badge-bot.one`, gas sponsored | **ONS + Zero Gas** |
 | 5. Test webhook fires | **GameFi Agent** executes |
-| 6. NFTs minted + USDO transferred | **NFT Factory + USDO** |
+| 6. NFTs minted + USDO transferred | **NFT Factory + USDO** |ppers.
+
 | 7. All txns verifiable on-chain explorer | **OneChain Infrastructure** |
 
 **Every judging criterion covered in one flow.**
