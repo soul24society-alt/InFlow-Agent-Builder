@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Copy, Check, LogOut, User as UserIcon, Key, Droplets } from "lucide-react"
+import { Copy, Check, LogOut, User as UserIcon, Key, Droplets, Fingerprint, AtSign } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
 import { PrivateKeySetupModal } from "./private-key-setup-modal"
@@ -107,6 +107,18 @@ export function UserProfile({ onLogout }: UserProfileProps) {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">Account</p>
+              {dbUser?.ons_name && (
+                <p className="text-xs font-medium text-foreground flex items-center gap-1">
+                  <AtSign className="h-3 w-3" />
+                  {dbUser.ons_name}
+                </p>
+              )}
+              {dbUser?.did && (
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Fingerprint className="h-3 w-3" />
+                  DID #{dbUser.did}
+                </p>
+              )}
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />

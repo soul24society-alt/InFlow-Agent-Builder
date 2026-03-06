@@ -19,6 +19,8 @@ export interface User {
   id: string // Sui wallet address (from useCurrentAccount → account.address)
   private_key: string | null
   wallet_address: string | null
+  did: string | null // OneChain 13-digit DID number
+  ons_name: string | null // OneChain Name Service — e.g. "alice.one"
   created_at: string
   updated_at: string
 }
@@ -29,6 +31,7 @@ export interface Agent {
   name: string
   description: string | null
   api_key: string
+  gas_budget: number | null
   tools: Array<{
     tool: string
     next_tool: string | null

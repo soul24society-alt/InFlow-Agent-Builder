@@ -247,3 +247,109 @@ module.exports = {
   crossBorderTransfer,
   checkOneId,
 };
+
+/**
+ * GET /dex/ons/:name — resolve a .one name to its wallet address
+ * GET /dex/ons/reverse/:address — look up the .one name for a wallet address
+ */
+async function checkOns(req, res) {
+  try {
+    const { name } = req.params;  // e.g. "alice.one" or "alice"
+    if (!name) return res.status(400).json(errorResponse('name is required'));
+
+    if (!ONS_PACKAGE_ID) {
+      return res.json(successResponse({
+        name: name.endsWith('.one') ? name : `${name}.one`,
+        resolved: false,
+        address: null,
+        message: 'ONS_PACKAGE_ID is not configured. ONS is coming soon on OneChain — set ONS_PACKAGE_ID once deployed.',
+      }));
+    }
+
+    const client = getClient();
+    const fullName = name.endsWith('.one') ? name : `${name}.one`;
+
+    // Query the ONS registry for this name's owner object
+    const { data } = await client.getOwnedObjects({
+      owner: `${ONS_PACKAGE_ID}::ons::Registry`,
+      filter: { StructType: `${ONS_PACKAGE_ID}::ons::NameRecord` },
+      options: { showContent: true },
+    }).catch(() => ({ data: [] }));
+
+    const record = data.find(obj => obj?.data?.content?.fields?.name === fullName);
+    if (record) {
+      const fields = record.data.content.fields;
+      return res.json(successResponse({
+        name: fullName,
+        resolved: true,
+        address: fields.target_address || fields.address || null,
+        expiry: fields.expiry || null,
+        message: `${fullName} resolves to ${fields.target_address || fields.address}`,
+      }));
+    }
+
+    return res.json(successResponse({
+      name: fullName,
+      resolved: false,
+      address: null,
+      message: `${fullName} is not registered on OneChain ONS.`,
+    }));
+  } catch (error) {
+    return res.status(500).json(errorResponse(error.message));
+  }
+}
+
+/**
+ * GET /dex/ons/reverse/:address — find the .one name for a wallet address
+ */
+async function reverseOns(req, res) {
+  try {
+    const { address } = req.params;
+    if (!address) return res.status(400).json(errorResponse('address is required'));
+
+    if (!ONS_PACKAGE_ID) {
+      return res.json(successResponse({
+        address,
+        name: null,
+        message: 'ONS_PACKAGE_ID is not configured. ONS is coming soon on OneChain.',
+      }));
+    }
+
+    const client = getClient();
+    // Query ONS name records owned by this address
+    const { data } = await client.getOwnedObjects({
+      owner: address,
+      filter: { StructType: `${ONS_PACKAGE_ID}::ons::NameRecord` },
+      options: { showContent: true },
+    }).catch(() => ({ data: [] }));
+
+    const record = data[0];
+    if (record) {
+      const name = record?.data?.content?.fields?.name || null;
+      return res.json(successResponse({
+        address,
+        name,
+        message: name ? `${address} owns the ONS name ${name}.` : 'No ONS name found for this address.',
+      }));
+    }
+
+    return res.json(successResponse({
+      address,
+      name: null,
+      message: `No ONS name registered for ${address}.`,
+    }));
+  } catch (error) {
+    return res.status(500).json(errorResponse(error.message));
+  }
+}
+
+module.exports = {
+  getPools,
+  getSwapQuote,
+  swapTokens,
+  getTokenPrice,
+  crossBorderTransfer,
+  checkOneId,
+  checkOns,
+  reverseOns,
+};

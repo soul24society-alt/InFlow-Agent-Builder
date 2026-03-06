@@ -27,6 +27,7 @@ import {
   Globe,
   ShieldCheck,
   Zap,
+  AtSign,
 } from "lucide-react"
 import { AGENT_TEMPLATES, CATEGORY_LABELS } from "@/lib/agent-templates"
 import type { AgentTemplate } from "@/lib/agent-templates"
@@ -42,6 +43,12 @@ const toolTypes = [
     type: "get_balance",
     label: "Get Balance",
     description: "Get wallet balance",
+    icon: Wallet,
+  },
+  {
+    type: "get_usdo_balance",
+    label: "Get USDO Balance",
+    description: "Check USDO stablecoin balance",
     icon: Wallet,
   },
   {
@@ -170,6 +177,12 @@ const toolTypes = [
     label: "Check ONEID",
     description: "Verify wallet ONEID / KYC status",
     icon: ShieldCheck,
+  },
+  {
+    type: "check_ons",
+    label: "Resolve ONS Name",
+    description: "Resolve .one name ↔ wallet address",
+    icon: AtSign,
   },
 ]
 

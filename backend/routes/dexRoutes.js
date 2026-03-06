@@ -6,6 +6,8 @@ const {
   getTokenPrice,
   crossBorderTransfer,
   checkOneId,
+  checkOns,
+  reverseOns,
 } = require('../controllers/dexController');
 
 const router = express.Router();
@@ -21,5 +23,9 @@ router.post('/cross-transfer', crossBorderTransfer);
 
 // ONEID
 router.get('/oneid/:address', checkOneId);
+
+// ONS (OneChain Name Service)
+router.get('/ons/reverse/:address', reverseOns);
+router.get('/ons/:name', checkOns);
 
 module.exports = router;

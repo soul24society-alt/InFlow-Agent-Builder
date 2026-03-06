@@ -53,18 +53,21 @@ if not GROQ_API_KEYS and not GEMINI_API_KEY:
 # Backend URL - configurable via environment or defaults to localhost
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:3001")
 
+# USDO — OneChain native USD stablecoin coin type
+USDO_COIN_TYPE = os.getenv("USDO_COIN_TYPE", f"{os.getenv('USDO_PACKAGE_ID', '')}::usdo::USDO")
+
 # Tool Definitions
 TOOL_DEFINITIONS = {
     "transfer": {
         "name": "transfer",
-        "description": "Prepare a transfer transaction for the user to sign with their wallet (OneWallet). Use the user's connected wallet address as fromAddress. Requires fromAddress, toAddress, amount, and optionally coinType for Move coin transfers (omit for native OCT).",
+        "description": "Prepare a transfer transaction for the user to sign with their wallet (OneWallet). Use the user's connected wallet address as fromAddress. For native OCT omit coinType. For USDO (USD stablecoin on OneChain) set coinType to the USDO coin type string. Amounts are human-readable (e.g. 1.5 for 1.5 OCT or 10 for 10 USDO).",
         "parameters": {
             "type": "object",
             "properties": {
                 "fromAddress": {"type": "string", "description": "Sender wallet address (user's connected wallet)"},
                 "toAddress": {"type": "string", "description": "Recipient wallet address"},
-                "amount": {"type": "string", "description": "Amount of tokens to transfer (in MIST for OCT)"},
-                "coinType": {"type": "string", "description": "Move coin type (optional, for non-OCT transfers only, omit for native OCT)"}
+                "amount": {"type": "string", "description": "Human-readable amount to transfer (e.g. '1.5' for 1.5 OCT or '10' for 10 USDO)"},
+                "coinType": {"type": "string", "description": f"Move coin type for non-OCT transfers. For USDO use: {USDO_COIN_TYPE}. Omit for native OCT."}
             },
             "required": ["fromAddress", "toAddress", "amount"]
         },
@@ -83,6 +86,19 @@ TOOL_DEFINITIONS = {
             "required": ["address"]
         },
         "endpoint": f"{BACKEND_URL}/transfer/balance/{{address}}",
+        "method": "GET"
+    },
+    "get_usdo_balance": {
+        "name": "get_usdo_balance",
+        "description": f"Get USDO (USD stablecoin) balance of a wallet address on OneChain. Use this instead of get_balance when the user asks about USDO, stablecoin balance, or USD-equivalent holdings.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "address": {"type": "string", "description": "Wallet address to check USDO balance"}
+            },
+            "required": ["address"]
+        },
+        "endpoint": f"{BACKEND_URL}/transfer/balance/{{address}}?coinType={USDO_COIN_TYPE}",
         "method": "GET"
     },
     "deploy_move_token": {
@@ -438,6 +454,20 @@ TOOL_DEFINITIONS = {
         "endpoint": "/dex/oneid/{address}",
         "method": "GET"
     },
+    "check_ons": {
+        "name": "check_ons",
+        "description": "Resolve a OneChain Name Service (.one) name to its wallet address, or look up the .one name for a given address. ONS is OneChain's on-chain human-readable name system (like ENS on Ethereum).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "ONS name to resolve, e.g. 'alice.one' or 'alice'"},
+                "address": {"type": "string", "description": "Wallet address for reverse lookup (find the .one name for this address)"}
+            },
+            "required": []
+        },
+        "endpoint": "/dex/ons/{name}",
+        "method": "GET"
+    },
     # ── Utility ───────────────────────────────────────────────────────────────
     "condition_check": {
         "name": "condition_check",
@@ -497,6 +527,9 @@ class AgentRequest(BaseModel):
     user_message: str
     private_key: Optional[str] = None
     wallet_address: Optional[str] = None
+    gas_budget: Optional[float] = None
+    user_did: Optional[str] = None
+    ons_name: Optional[str] = None
 
 class AgentResponse(BaseModel):
     agent_response: str
@@ -1668,6 +1701,37 @@ async def chat_with_agent(request: AgentRequest):
         
         # Build system prompt
         system_prompt = build_system_prompt(request.tools)
+
+        # Inject gas sponsorship context if set
+        if request.gas_budget is not None and request.gas_budget > 0:
+            system_prompt += f"""
+
+GAS SPONSORSHIP ACTIVE:
+This agent has a gas budget of {request.gas_budget} OCT deposited by its creator.
+End users do NOT need to hold any OCT to run this agent — all transaction fees are covered.
+When confirming transactions to the user, mention that gas is sponsored and they pay nothing.
+"""
+
+        # Inject DID identity context if available
+        if request.user_did:
+            system_prompt += f"""
+
+USER IDENTITY:
+This user's OneChain DID is #{request.user_did}.
+DID (Decentralised Identity) is a unique 13-digit identifier assigned by OneChain that links
+all of this user's wallet addresses under one on-chain identity.
+You may refer to the user as "DID #{request.user_did}" in responses when identity context is relevant.
+"""
+
+        # Inject ONS name context if available
+        if request.ons_name:
+            system_prompt += f"""
+
+ONS NAME:
+This user's OneChain Name Service handle is "{request.ons_name}".
+ONS names are human-readable .one names (like ENS on Ethereum) that resolve to their wallet address.
+Use "{request.ons_name}" to refer to this user when a human-readable identity is more appropriate than a raw address.
+"""
         
         # Process conversation with sequential support
         result = process_agent_conversation(

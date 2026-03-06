@@ -22,6 +22,20 @@ async function chat(req, res) {
     // Truncate message if too long
     const truncatedMessage = truncateMessage(message);
 
+    // Fetch agent gas_budget and user DID + ONS name for context
+    let agentGasBudget = null;
+    let userDid = null;
+    let userOnsName = null;
+    if (supabase) {
+      const [agentResult, userResult] = await Promise.all([
+        supabase.from('agents').select('gas_budget').eq('id', agentId).single(),
+        supabase.from('users').select('did, ons_name').eq('id', userId).single(),
+      ]);
+      agentGasBudget = agentResult.data?.gas_budget ?? null;
+      userDid = userResult.data?.did ?? null;
+      userOnsName = userResult.data?.ons_name ?? null;
+    }
+
     // Get or create conversation (with Supabase if available, otherwise in-memory)
     let convId = conversationId;
     let isNewConversation = false;
@@ -222,7 +236,10 @@ async function chat(req, res) {
             tools: tools,
             user_message: enhancedMessage,
             private_key: null,
-            wallet_address: walletAddress || null
+            wallet_address: walletAddress || null,
+            gas_budget: agentGasBudget,
+            user_did: userDid,
+            ons_name: userOnsName
           })
         });
 

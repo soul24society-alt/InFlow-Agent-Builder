@@ -1,5 +1,5 @@
 const { Transaction } = require('@mysten/sui/transactions');
-const { ACTIVE_NETWORK, NATIVE_TOKEN } = require('../config/constants');
+const { ACTIVE_NETWORK, NATIVE_TOKEN, USDO_COIN_TYPE } = require('../config/constants');
 const { getClient, getKeypair, getBalance: getWalletBalance, executeTransaction } = require('../utils/blockchain');
 const {
   successResponse,
@@ -94,12 +94,34 @@ async function transferToken(req, res) {
 }
 
 /**
- * Get OCT balance for an address.
+/**
+ * Get OCT or any coin balance for an address.
  * GET /transfer/balance/:address
+ * Optional query: ?coinType=<Move coin type string>
  */
 async function getBalance(req, res) {
   try {
     const { address } = req.params;
+    const { coinType } = req.query;
+
+    if (coinType) {
+      const client = getClient();
+      const { data: coins } = await client.getCoins({ owner: address, coinType });
+      const total = coins.reduce((sum, c) => sum + BigInt(c.balance), 0n);
+      const ticker = coinType.split('::').pop() || coinType;
+      const formatted = (Number(total) / 1e9).toFixed(9).replace(/\.?0+$/, '') + ' ' + ticker;
+      return res.json(successResponse({
+        address,
+        balance: (Number(total) / 1e9).toString(),
+        balanceUnits: total.toString(),
+        formatted,
+        currency: ticker,
+        coinType,
+        network: ACTIVE_NETWORK,
+        explorerUrl: getAddressExplorerUrl(address),
+      }));
+    }
+
     const balInfo = await getWalletBalance(address);
     return res.json(successResponse({
       address,
@@ -116,19 +138,62 @@ async function getBalance(req, res) {
 }
 
 /**
+/**
  * Build a PTB for client-side signing — no private key needed.
- * Body: { fromAddress, toAddress, amount }
+ * Body: { fromAddress, toAddress, amount, coinType? }
  * Returns base64-encoded serialized transaction for OneWallet to sign.
  */
 async function prepareTransfer(req, res) {
   try {
-    const { fromAddress, toAddress, amount } = req.body;
+    const { fromAddress, toAddress, amount, coinType } = req.body;
     const validationError = validateRequiredFields(req.body, ['fromAddress', 'toAddress', 'amount']);
     if (validationError) return res.status(400).json(validationError);
 
-    const amountMist = octToMist(String(amount));
     const tx = new Transaction();
     tx.setSender(fromAddress);
+
+    if (coinType) {
+      // Non-native coin transfer (e.g. USDO): use coin objects from the wallet
+      const client = getClient();
+      const { data: coins } = await client.getCoins({ owner: fromAddress, coinType });
+      if (!coins || coins.length === 0) {
+        const ticker = coinType.split('::').pop() || coinType;
+        return res.status(400).json(errorResponse(`No ${ticker} coins found in wallet`));
+      }
+      // Merge into first coin if the wallet has multiple coin objects of this type
+      if (coins.length > 1) {
+        tx.mergeCoins(
+          tx.object(coins[0].coinObjectId),
+          coins.slice(1).map(c => tx.object(c.coinObjectId))
+        );
+      }
+      // Assumes 9 decimals (OneChain convention)
+      const amountUnits = BigInt(Math.round(parseFloat(amount) * 1e9));
+      const [splitCoin] = tx.splitCoins(tx.object(coins[0].coinObjectId), [tx.pure.u64(amountUnits)]);
+      tx.transferObjects([splitCoin], tx.pure.address(toAddress));
+
+      const builtTx = await tx.build({ client });
+      const txBase64 = Buffer.from(builtTx).toString('base64');
+      const ticker = coinType.split('::').pop() || coinType;
+
+      return res.json(successResponse({
+        type: 'coin',
+        requiresWallet: true,
+        transaction: txBase64,
+        details: {
+          from: fromAddress,
+          to: toAddress,
+          amount: String(amount),
+          amountUnits: amountUnits.toString(),
+          currency: ticker,
+          coinType,
+        },
+        network: ACTIVE_NETWORK,
+      }));
+    }
+
+    // Native OCT transfer
+    const amountMist = octToMist(String(amount));
     const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(amountMist)]);
     tx.transferObjects([coin], tx.pure.address(toAddress));
 

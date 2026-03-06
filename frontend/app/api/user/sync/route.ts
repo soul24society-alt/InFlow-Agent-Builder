@@ -16,6 +16,23 @@ function generateAgentWallet(): { address: string; privateKey: string } {
   }
 }
 
+/**
+ * Generates a deterministic 13-digit DID from a wallet address.
+ * Mimics OneChain's DID system — a unique numeric identifier per user.
+ */
+function generateDID(address: string): string {
+  // Hash the address bytes into a stable 13-digit number
+  let hash = 0n
+  for (let i = 0; i < address.length; i++) {
+    hash = (hash * 31n + BigInt(address.charCodeAt(i))) & 0xFFFFFFFFFFFFFFFFn
+  }
+  // Force into 13-digit range: 1000000000000 – 9999999999999
+  const min = 1000000000000n
+  const range = 8999999999999n
+  const did = (hash % range) + min
+  return did.toString()
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { address } = await req.json()
@@ -44,7 +61,12 @@ export async function POST(req: NextRequest) {
         const agentWallet = generateAgentWallet()
         const { data: updatedUser, error: updateError } = await supabaseAdmin
           .from('users')
-          .update({ private_key: agentWallet.privateKey, wallet_address: agentWallet.address })
+          .update({
+            private_key: agentWallet.privateKey,
+            wallet_address: agentWallet.address,
+            did: existing.did ?? generateDID(address),
+            ons_name: existing.ons_name ?? null,
+          })
           .eq('id', address)
           .select()
           .single()
@@ -57,6 +79,17 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ user: updatedUser, created: false })
       }
 
+      // Back-fill DID for existing users who pre-date this feature
+      if (!existing.did) {
+        const { data: updatedUser } = await supabaseAdmin
+          .from('users')
+          .update({ did: generateDID(address) })
+          .eq('id', address)
+          .select()
+          .single()
+        return NextResponse.json({ user: updatedUser ?? existing, created: false })
+      }
+
       return NextResponse.json({ user: existing, created: false })
     }
 
@@ -64,7 +97,13 @@ export async function POST(req: NextRequest) {
     const agentWallet = generateAgentWallet()
     const { data: newUser, error: createError } = await supabaseAdmin
       .from('users')
-      .insert({ id: address, private_key: agentWallet.privateKey, wallet_address: agentWallet.address })
+      .insert({
+        id: address,
+        private_key: agentWallet.privateKey,
+        wallet_address: agentWallet.address,
+        did: generateDID(address),
+        ons_name: null,
+      })
       .select()
       .single()
 

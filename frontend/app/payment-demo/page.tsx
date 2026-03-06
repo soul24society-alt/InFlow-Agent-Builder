@@ -198,6 +198,38 @@ export default function PaymentDemo() {
           </CardContent>
         </Card>
 
+        {/* USDO Stablecoin */}
+        <Card>
+          <CardHeader>
+            <CardTitle>5. USDO Stablecoin Payments</CardTitle>
+            <CardDescription>
+              OneChain’s native USD-pegged stablecoin — use USDO for stable-value transfers, rewards, and escrow
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="rounded-lg border p-4 space-y-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Transfer USDO</p>
+                <p className="font-semibold">Send stable value</p>
+                <p className="text-sm text-muted-foreground">Use the transfer tool with <code className="bg-muted px-1 rounded">coinType: USDO_COIN_TYPE</code></p>
+              </div>
+              <div className="rounded-lg border p-4 space-y-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Check USDO Balance</p>
+                <p className="font-semibold">get_usdo_balance</p>
+                <p className="text-sm text-muted-foreground">Dedicated tool that reads your USDO coin objects on-chain</p>
+              </div>
+              <div className="rounded-lg border p-4 space-y-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Airdrop USDO</p>
+                <p className="font-semibold">Batch stable rewards</p>
+                <p className="text-sm text-muted-foreground">Pass <code className="bg-muted px-1 rounded">coinType</code> to the airdrop tool for USDO batch sends</p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Set <code className="bg-muted px-1 rounded">USDO_COIN_TYPE</code> env var to the full Move coin type string (<code className="bg-muted px-1 rounded">&lt;pkg&gt;::usdo::USDO</code>)
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Environment Status */}
         <Card>
           <CardHeader>
@@ -214,7 +246,7 @@ export default function PaymentDemo() {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-green-600">✅</span>
-              <span className="text-sm">USDC Address: Configured</span>
+              <span className="text-sm">USDO Address: Configured</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-green-600">✅</span>

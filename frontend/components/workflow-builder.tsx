@@ -164,6 +164,7 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
   const [showSaveDialog, setShowSaveDialog] = useState(false)
   const [agentName, setAgentName] = useState("")
   const [agentDescription, setAgentDescription] = useState("")
+  const [gasBudget, setGasBudget] = useState("")
   const [loadingAgent, setLoadingAgent] = useState(false)
   const [saving, setSaving] = useState(false)
   const [showNodeLibrary, setShowNodeLibrary] = useState(false)
@@ -324,6 +325,7 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
         await updateAgent(agentId, {
           name: agentName,
           description: agentDescription || null,
+          gas_budget: gasBudget ? parseFloat(gasBudget) : null,
           tools,
         })
         toast({
@@ -343,7 +345,7 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
           })
           return
         }
-        const agent = await createAgent(user.id, agentName, agentDescription || null, tools)
+        const agent = await createAgent(user.id, agentName, agentDescription || null, tools, gasBudget ? parseFloat(gasBudget) : null)
         toast({
           title: "Agent created",
           description: "Your agent has been created successfully",
@@ -440,6 +442,7 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
 
         setAgentName(agent.name)
         setAgentDescription(agent.description || "")
+        setGasBudget(agent.gas_budget != null ? String(agent.gas_budget) : "")
         
         // Convert tools back to workflow format and display on canvas
         if (agent.tools && agent.tools.length > 0) {
@@ -699,6 +702,23 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
                 onChange={(e) => setAgentDescription(e.target.value)}
                 rows={3}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gas-budget" className="flex items-center gap-1.5">
+                ⛽ Gas Budget <span className="text-xs text-muted-foreground font-normal">(OCT — optional)</span>
+              </Label>
+              <Input
+                id="gas-budget"
+                type="number"
+                min="0"
+                step="0.1"
+                placeholder="e.g. 1.5"
+                value={gasBudget}
+                onChange={(e) => setGasBudget(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Deposit OCT to sponsor gas for users of this agent — they won&apos;t need to hold any OCT to run it.
+              </p>
             </div>
             <div className="space-y-2">
               <Label>Tools to be saved</Label>

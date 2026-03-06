@@ -36,6 +36,7 @@ const getDefaultLabel = (type: string): string => {
     transfer: "Transfer",
     swap: "Swap",
     get_balance: "Get Balance",
+    get_usdo_balance: "Get USDO Balance",
     deploy_token: "Deploy Token",
     deploy_nft_collection: "Deploy NFT Collection",
     create_dao: "Create DAO",
@@ -58,6 +59,7 @@ const getDefaultLabel = (type: string): string => {
     get_dex_price: "DEX Price",
     cross_border_transfer: "Cross-Border Transfer",
     check_oneid: "Check ONEID",
+    check_ons: "Resolve ONS Name",
   }
   return labels[type] || "Tool"
 }
@@ -67,6 +69,7 @@ const getDefaultDescription = (type: string): string => {
     transfer: "Transfer tokens or assets",
     swap: "Swap tokens",
     get_balance: "Get wallet balance",
+    get_usdo_balance: "Check USDO stablecoin balance",
     deploy_token: "Deploy Move fungible token",
     deploy_nft_collection: "Deploy Move NFT collection",
     create_dao: "Create a new DAO",
@@ -89,6 +92,7 @@ const getDefaultDescription = (type: string): string => {
     get_dex_price: "Get on-chain token price",
     cross_border_transfer: "ONETRANSFER international payment",
     check_oneid: "Verify wallet ONEID / KYC status",
+    check_ons: "Resolve .one name ↔ wallet address",
   }
   return descriptions[type] || "Workflow tool"
 }

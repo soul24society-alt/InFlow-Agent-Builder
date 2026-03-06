@@ -24,6 +24,8 @@ import {
   Wrench,
   Terminal,
   Code2,
+  Fingerprint,
+  AtSign,
 } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { getAgentsByUserId, deleteAgent } from "@/lib/agents"
@@ -58,7 +60,7 @@ import {
 
 export default function MyAgents() {
   const router = useRouter()
-  const { ready, authenticated, user, logout, loading: authLoading, isWalletLogin, syncUser } = useAuth()
+  const { ready, authenticated, user, logout, loading: authLoading, isWalletLogin, syncUser, dbUser } = useAuth()
   const [agents, setAgents] = useState<Agent[]>([])
   const [loading, setLoading] = useState(true)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -195,14 +197,28 @@ export default function MyAgents() {
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium text-foreground truncate">
                         {agent.name}
                       </span>
                       <Badge variant="secondary" className="text-[10px] font-normal px-1.5 py-0 h-4 shrink-0">
                         {agent.tools.length} {agent.tools.length === 1 ? "tool" : "tools"}
                       </Badge>
+                      {agent.gas_budget != null && agent.gas_budget > 0 && (
+                        <Badge className="text-[10px] font-normal px-1.5 py-0 h-4 shrink-0 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50">
+                          ⛽ {agent.gas_budget} OCT sponsored
+                        </Badge>
+                      )}
                     </div>
+                    {(dbUser?.ons_name || dbUser?.did) && (
+                      <p className="mt-0.5 text-[10px] text-muted-foreground/60 flex items-center gap-1">
+                        {dbUser.ons_name ? (
+                          <><AtSign className="h-2.5 w-2.5" />{dbUser.ons_name}</>
+                        ) : (
+                          <><Fingerprint className="h-2.5 w-2.5" />DID #{dbUser.did}</>
+                        )}
+                      </p>
+                    )}
                     <p className="mt-0.5 text-xs text-muted-foreground truncate">
                       {agent.description || "No description"}
                     </p>

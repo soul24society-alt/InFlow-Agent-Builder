@@ -4,7 +4,8 @@ export async function createAgent(
   userId: string,
   name: string,
   description: string | null,
-  tools: Array<{ tool: string; next_tool: string | null; config?: Record<string, any> }>
+  tools: Array<{ tool: string; next_tool: string | null; config?: Record<string, any> }>,
+  gasBudget?: number | null
 ): Promise<Agent> {
   // Generate random API key
   const apiKey = generateApiKey()
@@ -17,6 +18,7 @@ export async function createAgent(
       description,
       api_key: apiKey,
       tools,
+      gas_budget: gasBudget ?? null,
     })
     .select()
     .single()
@@ -81,6 +83,7 @@ export async function updateAgent(
   updates: {
     name?: string
     description?: string | null
+    gas_budget?: number | null
     tools?: Array<{ tool: string; next_tool: string | null; config?: Record<string, any> }>
   }
 ): Promise<Agent> {

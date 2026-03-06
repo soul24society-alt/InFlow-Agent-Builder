@@ -90,6 +90,20 @@ export const AGENT_TEMPLATES: AgentTemplate[] = [
       { tool: "send_webhook", next_tool: null },
     ],
   },
+  {
+    id: "usdo-stable-rewards",
+    name: "USDO Stable Rewards",
+    description:
+      "Check a wallet's USDO balance, verify it meets a threshold, then batch-airdrop USDO stablecoin rewards and confirm by email.",
+    emoji: "💵",
+    category: "defi",
+    tools: [
+      { tool: "get_usdo_balance", next_tool: "condition_check" },
+      { tool: "condition_check", next_tool: "airdrop" },
+      { tool: "airdrop", next_tool: "send_email" },
+      { tool: "send_email", next_tool: null },
+    ],
+  },
 ]
 
 export const CATEGORY_LABELS: Record<AgentTemplate["category"], string> = {

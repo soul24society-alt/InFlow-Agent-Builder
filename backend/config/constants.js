@@ -27,7 +27,13 @@ module.exports = {
   // OneChain-native product package IDs
   ONEDEX_PACKAGE_ID: process.env.ONEDEX_PACKAGE_ID || '',
   ONEID_PACKAGE_ID: process.env.ONEID_PACKAGE_ID || '',
+  ONS_PACKAGE_ID: process.env.ONS_PACKAGE_ID || '',
   ONETRANSFER_PACKAGE_ID: process.env.ONETRANSFER_PACKAGE_ID || '',
+
+  // USDO — OneChain native USD stablecoin
+  // Full coin type: <USDO_PACKAGE_ID>::usdo::USDO
+  USDO_PACKAGE_ID: process.env.USDO_PACKAGE_ID || '',
+  USDO_COIN_TYPE: process.env.USDO_COIN_TYPE || `${process.env.USDO_PACKAGE_ID || ''}::usdo::USDO`,
 
   // Server Configuration
   PORT: process.env.PORT || 3001,

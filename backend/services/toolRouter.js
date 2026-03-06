@@ -12,15 +12,15 @@ const AVAILABLE_TOOLS = {
   },
   get_balance: {
     name: 'get_balance',
-    description: 'Gets the OCT balance of a wallet address on OneChain. If the user asks for "my balance", the connected wallet address will be used automatically.',
+    description: 'Gets the OCT balance of a wallet address on OneChain. Use get_token_balance for USDO or other Move coins. If the user asks for "my balance", the connected wallet address will be used automatically.',
     parameters: ['wallet_address (optional if user is asking for their own balance)'],
     examples: ['What is the balance of 0x123...?', 'Check my wallet balance', 'How much OCT do I have?']
   },
   transfer: {
     name: 'transfer',
-    description: 'Transfers OCT or Move tokens from user\'s connected wallet to another wallet. The user\'s wallet address is used automatically.',
-    parameters: ['to_address', 'amount', 'coin_type (optional)'],
-    examples: ['Send 1 OCT to 0x123...', 'Transfer tokens to Alice', 'Pay Bob 0.5 OCT']
+    description: 'Transfers OCT or USDO (or any Move coin) from user\'s connected wallet to another wallet. Pass coinType for USDO or custom tokens — omit for native OCT. The user\'s wallet address is used automatically.',
+    parameters: ['to_address', 'amount', 'coin_type (optional — use USDO_COIN_TYPE for USDO)'],
+    examples: ['Send 1 OCT to 0x123...', 'Transfer 50 USDO to Alice', 'Pay Bob 0.5 OCT', 'Send 10 USDO stablecoin to 0xabc...']
   },
   deploy_token: {
     name: 'deploy_token',
@@ -134,9 +134,9 @@ const AVAILABLE_TOOLS = {
   // ─── Airdrop / Batch Tools ───────────────────────────────────────────────
   airdrop: {
     name: 'airdrop',
-    description: 'Sends OCT to multiple wallet addresses in a single on-chain transaction (batch transfer / airdrop). Much more efficient than individual transfers.',
-    parameters: ['privateKey', 'recipients (array of {address, amount})', 'OR addresses[] + amounts[]'],
-    examples: ['Airdrop 1 OCT each to these 5 wallets', 'Send tokens to multiple addresses', 'Batch transfer OCT to community members']
+    description: 'Sends OCT or USDO to multiple wallet addresses in a single on-chain transaction (batch transfer / airdrop). Much more efficient than individual transfers.',
+    parameters: ['privateKey', 'recipients (array of {address, amount})', 'OR addresses[] + amounts[]', 'coinType (optional — use for USDO airdrops)'],
+    examples: ['Airdrop 1 OCT each to these 5 wallets', 'Send tokens to multiple addresses', 'Batch transfer OCT to community members', 'Airdrop 5 USDO to each winner']
   },
   // ─── OneChain Ecosystem Tools ─────────────────────────────────────────────────
   get_swap_quote: {
@@ -174,6 +174,12 @@ const AVAILABLE_TOOLS = {
     description: 'Checks whether a wallet address has a verified ONEID (OneChain identity/KYC credential).',
     parameters: ['address'],
     examples: ['Does 0x123... have a ONEID?', 'Check if my wallet is ONEID verified', 'Is this address KYC verified on OneChain?']
+  },
+  check_ons: {
+    name: 'check_ons',
+    description: 'Resolves a OneChain Name Service (.one) name to a wallet address, or looks up the .one name for a given address. ONS is the on-chain human-readable name system for OneChain (like ENS for Ethereum).',
+    parameters: ['name (e.g. alice.one) OR address (for reverse lookup)'],
+    examples: ['What address does alice.one resolve to?', 'Does 0x123... have an ONS name?', 'Look up the .one name for my wallet', 'Resolve bob.one to an address']
   }
 };
 
