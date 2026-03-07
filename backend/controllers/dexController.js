@@ -239,15 +239,6 @@ async function checkOneId(req, res) {
   }
 }
 
-module.exports = {
-  getPools,
-  getSwapQuote,
-  swapTokens,
-  getTokenPrice,
-  crossBorderTransfer,
-  checkOneId,
-};
-
 /**
  * GET /dex/ons/:name — resolve a .one name to its wallet address
  * GET /dex/ons/reverse/:address — look up the .one name for a wallet address

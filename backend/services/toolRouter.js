@@ -18,9 +18,9 @@ const AVAILABLE_TOOLS = {
   },
   transfer: {
     name: 'transfer',
-    description: 'Transfers OCT or USDO (or any Move coin) from user\'s connected wallet to another wallet. Pass coinType for USDO or custom tokens — omit for native OCT. The user\'s wallet address is used automatically.',
+    description: 'Transfers OCT or USDO (or any Move coin) from user\'s connected wallet to another wallet. Pass coinType for USDO or custom tokens — omit for native OCT. Accepts .one ONS names as the recipient (e.g. alice.one) — they are resolved automatically. The user\'s wallet address is used automatically.',
     parameters: ['to_address', 'amount', 'coin_type (optional — use USDO_COIN_TYPE for USDO)'],
-    examples: ['Send 1 OCT to 0x123...', 'Transfer 50 USDO to Alice', 'Pay Bob 0.5 OCT', 'Send 10 USDO stablecoin to 0xabc...']
+    examples: ['Send 1 OCT to 0x123...', 'Transfer 50 USDO to Alice', 'Pay Bob 0.5 OCT', 'Send 10 USDO stablecoin to 0xabc...', 'Send 5 OCT to alice.one']
   },
   deploy_token: {
     name: 'deploy_token',

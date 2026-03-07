@@ -25,7 +25,7 @@ import {
   Terminal,
   Code2,
   Fingerprint,
-  AtSign,
+  Globe,
 } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { getAgentsByUserId, deleteAgent } from "@/lib/agents"
@@ -164,6 +164,12 @@ export default function MyAgents() {
               <Link href="/contract-explorer">
                 <FileCode className="mr-1.5 h-3.5 w-3.5" />
                 Contract Explorer
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="h-8 text-xs font-medium">
+              <Link href="/marketplace">
+                <Globe className="mr-1.5 h-3.5 w-3.5" />
+                Marketplace
               </Link>
             </Button>
             <div className="flex-1" />

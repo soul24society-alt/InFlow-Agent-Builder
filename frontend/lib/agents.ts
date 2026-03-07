@@ -1,11 +1,17 @@
 import { supabase, type Agent } from './supabase'
 
+export type PublicAgent = Agent & {
+  creator_did: string | null
+  creator_ons_name: string | null
+}
+
 export async function createAgent(
   userId: string,
   name: string,
   description: string | null,
   tools: Array<{ tool: string; next_tool: string | null; config?: Record<string, any> }>,
-  gasBudget?: number | null
+  gasBudget?: number | null,
+  isPublic?: boolean
 ): Promise<Agent> {
   // Generate random API key
   const apiKey = generateApiKey()
@@ -19,6 +25,7 @@ export async function createAgent(
       api_key: apiKey,
       tools,
       gas_budget: gasBudget ?? null,
+      is_public: isPublic ?? false,
     })
     .select()
     .single()
@@ -84,6 +91,7 @@ export async function updateAgent(
     name?: string
     description?: string | null
     gas_budget?: number | null
+    is_public?: boolean
     tools?: Array<{ tool: string; next_tool: string | null; config?: Record<string, any> }>
   }
 ): Promise<Agent> {
@@ -107,6 +115,55 @@ export async function deleteAgent(agentId: string): Promise<void> {
   if (error) {
     throw new Error(`Failed to delete agent: ${error.message}`)
   }
+}
+
+export async function getPublicAgents(): Promise<PublicAgent[]> {
+  const { data: agents, error } = await supabase
+    .from('agents')
+    .select('*')
+    .eq('is_public', true)
+    .order('created_at', { ascending: false })
+
+  if (error) throw new Error(`Failed to fetch public agents: ${error.message}`)
+  if (!agents || agents.length === 0) return []
+
+  // Fetch creator identity (DID / ONS) in one query
+  const userIds = [...new Set(agents.map((a) => a.user_id))]
+  const { data: users } = await supabase
+    .from('users')
+    .select('id, did, ons_name')
+    .in('id', userIds)
+
+  const userMap = Object.fromEntries((users ?? []).map((u) => [u.id, u]))
+
+  return agents.map((agent) => ({
+    ...agent,
+    creator_did: userMap[agent.user_id]?.did ?? null,
+    creator_ons_name: userMap[agent.user_id]?.ons_name ?? null,
+  }))
+}
+
+export async function cloneAgent(
+  userId: string,
+  source: Agent
+): Promise<Agent> {
+  const apiKey = generateApiKey()
+  const { data, error } = await supabase
+    .from('agents')
+    .insert({
+      user_id: userId,
+      name: `${source.name} (clone)`,
+      description: source.description,
+      api_key: apiKey,
+      tools: source.tools,
+      gas_budget: null,
+      is_public: false,
+    })
+    .select()
+    .single()
+
+  if (error) throw new Error(`Failed to clone agent: ${error.message}`)
+  return data
 }
 
 function generateApiKey(): string {

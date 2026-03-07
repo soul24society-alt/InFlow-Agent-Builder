@@ -165,6 +165,7 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
   const [agentName, setAgentName] = useState("")
   const [agentDescription, setAgentDescription] = useState("")
   const [gasBudget, setGasBudget] = useState("")
+  const [isPublic, setIsPublic] = useState(false)
   const [loadingAgent, setLoadingAgent] = useState(false)
   const [saving, setSaving] = useState(false)
   const [showNodeLibrary, setShowNodeLibrary] = useState(false)
@@ -326,6 +327,7 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
           name: agentName,
           description: agentDescription || null,
           gas_budget: gasBudget ? parseFloat(gasBudget) : null,
+          is_public: isPublic,
           tools,
         })
         toast({
@@ -345,7 +347,7 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
           })
           return
         }
-        const agent = await createAgent(user.id, agentName, agentDescription || null, tools, gasBudget ? parseFloat(gasBudget) : null)
+        const agent = await createAgent(user.id, agentName, agentDescription || null, tools, gasBudget ? parseFloat(gasBudget) : null, isPublic)
         toast({
           title: "Agent created",
           description: "Your agent has been created successfully",
@@ -443,6 +445,7 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
         setAgentName(agent.name)
         setAgentDescription(agent.description || "")
         setGasBudget(agent.gas_budget != null ? String(agent.gas_budget) : "")
+        setIsPublic(agent.is_public ?? false)
         
         // Convert tools back to workflow format and display on canvas
         if (agent.tools && agent.tools.length > 0) {
@@ -719,8 +722,29 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
               <p className="text-xs text-muted-foreground">
                 Deposit OCT to sponsor gas for users of this agent — they won&apos;t need to hold any OCT to run it.
               </p>
-            </div>
-            <div className="space-y-2">
+            </div>            <div className="flex items-center justify-between rounded-lg border border-border px-3 py-3">
+              <div className="space-y-0.5">
+                <Label className="text-sm">🌐 Publish to Marketplace</Label>
+                <p className="text-xs text-muted-foreground">
+                  Make this agent discoverable in the public marketplace so others can clone and use it.
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isPublic}
+                onClick={() => setIsPublic(!isPublic)}
+                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none ${
+                  isPublic ? 'bg-foreground' : 'bg-input'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-background shadow-md transform transition-transform ${
+                    isPublic ? 'translate-x-4' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>            <div className="space-y-2">
               <Label>Tools to be saved</Label>
               <div className="p-3 bg-gray-50 rounded-md border border-gray-200">
                 <pre className="text-xs font-mono overflow-x-auto whitespace-pre-wrap">

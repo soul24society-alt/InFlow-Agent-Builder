@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { Send, Loader2, ChevronDown, ChevronUp, Wrench, ArrowLeft, ArrowRight, CircleDot } from "lucide-react"
+import { Send, Loader2, ChevronDown, ChevronUp, Wrench, ArrowLeft, ArrowRight, CircleDot, Fingerprint, AtSign, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
@@ -130,6 +130,32 @@ function formatContent(content: string): string {
       return `<pre class="mt-2 rounded border border-border bg-muted/40 p-2.5 font-mono text-[11px] overflow-x-auto leading-relaxed">${code}</pre>`
     })
     .replace(/`([^`]+)`/g, '<code class="bg-muted px-1 py-0.5 rounded text-[11px] font-mono">$1</code>')
+}
+
+function getSuggestedPrompt(tool: string): string {
+  const prompts: Record<string, string> = {
+    transfer: "Send 1 OCT to…",
+    get_balance: "Check my balance",
+    get_usdo_balance: "Check my USDO balance",
+    fetch_price: "What's the OCT price?",
+    deploy_token: "Deploy a new token",
+    deploy_nft_collection: "Deploy an NFT collection",
+    mint_nft: "Mint an NFT",
+    airdrop: "Airdrop tokens",
+    send_email: "Send an email",
+    create_dao: "Create a DAO",
+    create_proposal: "Create a proposal",
+    vote_on_proposal: "Vote on a proposal",
+    swap_tokens: "Swap OCT for USDT",
+    get_swap_quote: "Quote OCT → USDT",
+    condition_check: "Check a condition",
+    wallet_history: "Show my transactions",
+    tx_status: "Check a transaction",
+    check_oneid: "Check ONEID",
+    check_ons: "Resolve a .one name",
+    cross_border_transfer: "Send a cross-border payment",
+  }
+  return prompts[tool] ?? `Use ${tool}`
 }
 
 export default function AgentChatPage() {
@@ -313,6 +339,11 @@ export default function AgentChatPage() {
               <Badge variant="secondary" className="text-[10px] h-4 px-1.5 py-0 font-normal">
                 {agent.tools?.length || 0} {(agent.tools?.length || 0) === 1 ? "tool" : "tools"}
               </Badge>
+              {agent.gas_budget != null && agent.gas_budget > 0 && (
+                <Badge className="text-[10px] h-4 px-1.5 py-0 font-normal bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50">
+                  ⛽ {agent.gas_budget} OCT sponsored
+                </Badge>
+              )}
             </div>
             <UserProfile
               onLogout={() => {
@@ -328,11 +359,35 @@ export default function AgentChatPage() {
           <div className="mx-auto max-w-2xl px-4 py-6">
             {messages.length === 0 && (
               <div className="flex min-h-[65vh] items-center justify-center">
-                <div className="text-center space-y-2">
+                <div className="text-center space-y-4 max-w-sm">
                   <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-border">
                     <CircleDot className="h-4 w-4 text-muted-foreground" />
                   </div>
-                  <p className="text-xs text-muted-foreground">Send a message to begin.</p>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{agent.name}</p>
+                    {(dbUser?.ons_name || dbUser?.did) && (
+                      <p className="mt-0.5 text-[10px] text-muted-foreground/60 flex items-center justify-center gap-1">
+                        {dbUser.ons_name
+                          ? <><AtSign className="h-2.5 w-2.5" />{dbUser.ons_name}</>
+                          : <><Fingerprint className="h-2.5 w-2.5" />DID #{dbUser.did}</>}
+                      </p>
+                    )}
+                    <p className="mt-1 text-xs text-muted-foreground">{agent.description || "Send a message to begin."}</p>
+                  </div>
+                  {agent.tools && agent.tools.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 justify-center">
+                      {agent.tools.slice(0, 4).map((t, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setInput(getSuggestedPrompt(t.tool))}
+                          className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-2.5 py-1 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        >
+                          <Zap className="h-2.5 w-2.5" />
+                          {getSuggestedPrompt(t.tool)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

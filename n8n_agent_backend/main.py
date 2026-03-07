@@ -60,12 +60,12 @@ USDO_COIN_TYPE = os.getenv("USDO_COIN_TYPE", f"{os.getenv('USDO_PACKAGE_ID', '')
 TOOL_DEFINITIONS = {
     "transfer": {
         "name": "transfer",
-        "description": "Prepare a transfer transaction for the user to sign with their wallet (OneWallet). Use the user's connected wallet address as fromAddress. For native OCT omit coinType. For USDO (USD stablecoin on OneChain) set coinType to the USDO coin type string. Amounts are human-readable (e.g. 1.5 for 1.5 OCT or 10 for 10 USDO).",
+        "description": "Prepare a transfer transaction for the user to sign with their wallet (OneWallet). Use the user's connected wallet address as fromAddress. For native OCT omit coinType. For USDO (USD stablecoin on OneChain) set coinType to the USDO coin type string. Amounts are human-readable (e.g. 1.5 for 1.5 OCT or 10 for 10 USDO). The toAddress can be a raw 0x wallet address OR a .one ONS name such as 'alice.one' — both are accepted and ONS names are resolved automatically.",
         "parameters": {
             "type": "object",
             "properties": {
                 "fromAddress": {"type": "string", "description": "Sender wallet address (user's connected wallet)"},
-                "toAddress": {"type": "string", "description": "Recipient wallet address"},
+                "toAddress": {"type": "string", "description": "Recipient wallet address or .one ONS name (e.g. 'alice.one') — ONS names are resolved automatically on-chain"},
                 "amount": {"type": "string", "description": "Human-readable amount to transfer (e.g. '1.5' for 1.5 OCT or '10' for 10 USDO)"},
                 "coinType": {"type": "string", "description": f"Move coin type for non-OCT transfers. For USDO use: {USDO_COIN_TYPE}. Omit for native OCT."}
             },
@@ -758,6 +758,15 @@ RULE 12 — ALWAYS SHOW YOUR WORK
   • Each value fetched (with source)
   • Each arithmetic step
   • The final result clearly marked with **Result:**
+
+───────────────────────────────────────────────────
+RULE 13 — ONS NAME RESOLUTION (.one domains)
+───────────────────────────────────────────────────
+  When a user asks to transfer to a name ending in ".one" (e.g. "alice.one"):
+  1. You MUST call `check_ons` first with the name to resolve the wallet address
+  2. Wait for the `check_ons` result (e.g., {"address": "0x123..."})
+  3. Formulate the `transfer` tool call using the resolved `0x...` address
+  ❌ NEVER pass a ".one" string directly to the transfer tool.
 
 ═══════════════════════════════════════════════════════════════
 """

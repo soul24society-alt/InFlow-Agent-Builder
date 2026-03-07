@@ -1,5 +1,5 @@
 const { Transaction } = require('@mysten/sui/transactions');
-const { ACTIVE_NETWORK, NATIVE_TOKEN, USDO_COIN_TYPE } = require('../config/constants');
+const { ACTIVE_NETWORK, NATIVE_TOKEN, USDO_COIN_TYPE, ONS_PACKAGE_ID } = require('../config/constants');
 const { getClient, getKeypair, getBalance: getWalletBalance, executeTransaction } = require('../utils/blockchain');
 const {
   successResponse,
@@ -12,14 +12,46 @@ const {
 } = require('../utils/helpers');
 
 /**
+ * Resolve a .one ONS name to its wallet address.
+ * Returns the original value unchanged if it is already a 0x address.
+ */
+async function resolveAddress(addressOrName) {
+  const value = (addressOrName || '').trim();
+  if (!value.includes('.')) return value; // plain 0x address — no resolution needed
+  if (!ONS_PACKAGE_ID) return value;      // ONS not configured — pass through and let chain reject
+
+  try {
+    const client = getClient();
+    const fullName = value.endsWith('.one') ? value : `${value}.one`;
+    const { data } = await client.getOwnedObjects({
+      owner: `${ONS_PACKAGE_ID}::ons::Registry`,
+      filter: { StructType: `${ONS_PACKAGE_ID}::ons::NameRecord` },
+      options: { showContent: true },
+    }).catch(() => ({ data: [] }));
+    const record = data.find(obj => obj?.data?.content?.fields?.name === fullName);
+    const resolved = record?.data?.content?.fields?.target_address
+      || record?.data?.content?.fields?.address
+      || null;
+    return resolved || value; // fall back to original if not found
+  } catch {
+    return value;
+  }
+}
+
+/**
  * Transfer native OCT (server-side signing).
  * Body: { privateKey, toAddress, amount }  -- amount in OCT e.g. "1.5"
  */
 async function transfer(req, res) {
   try {
-    const { privateKey, toAddress, amount } = req.body;
+    const { privateKey, amount } = req.body;
+    let { toAddress } = req.body;
     const validationError = validateRequiredFields(req.body, ['privateKey', 'toAddress', 'amount']);
     if (validationError) return res.status(400).json(validationError);
+
+    // Resolve ONS .one name → wallet address
+    const originalName = toAddress;
+    toAddress = await resolveAddress(toAddress);
 
     const keypair = getKeypair(privateKey);
     const senderAddress = keypair.toSuiAddress();
@@ -46,6 +78,7 @@ async function transfer(req, res) {
       transactionDigest: digest,
       from: senderAddress,
       to: toAddress,
+      onsName: originalName !== toAddress ? originalName : undefined,
       amount: String(amount),
       amountMist: amountMist.toString(),
       currency: NATIVE_TOKEN,
@@ -64,9 +97,13 @@ async function transfer(req, res) {
  */
 async function transferToken(req, res) {
   try {
-    const { privateKey, objectId, toAddress } = req.body;
+    const { privateKey, objectId } = req.body;
+    let { toAddress } = req.body;
     const validationError = validateRequiredFields(req.body, ['privateKey', 'objectId', 'toAddress']);
     if (validationError) return res.status(400).json(validationError);
+
+    // Resolve ONS .one name → wallet address
+    toAddress = await resolveAddress(toAddress);
 
     const keypair = getKeypair(privateKey);
     const senderAddress = keypair.toSuiAddress();
@@ -145,9 +182,13 @@ async function getBalance(req, res) {
  */
 async function prepareTransfer(req, res) {
   try {
-    const { fromAddress, toAddress, amount, coinType } = req.body;
+    const { fromAddress, amount, coinType } = req.body;
+    let { toAddress } = req.body;
     const validationError = validateRequiredFields(req.body, ['fromAddress', 'toAddress', 'amount']);
     if (validationError) return res.status(400).json(validationError);
+
+    // Resolve ONS .one name → wallet address
+    toAddress = await resolveAddress(toAddress);
 
     const tx = new Transaction();
     tx.setSender(fromAddress);

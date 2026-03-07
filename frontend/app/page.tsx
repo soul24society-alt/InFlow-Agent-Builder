@@ -157,6 +157,13 @@ export default function Home() {
               >
                 Contract Explorer
               </Link>
+              <Link
+                href="/marketplace"
+                onClick={() => setLoadingLink('/marketplace')}
+                className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+              >
+                Marketplace
+              </Link>
             </div>
 
             {/* Mobile & Desktop Right Side */}
@@ -236,6 +243,16 @@ export default function Home() {
                   className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors py-2"
                 >
                   Contract Explorer
+                </Link>
+                <Link
+                  href="/marketplace"
+                  onClick={() => {
+                    setLoadingLink('/marketplace')
+                    setMobileMenuOpen(false)
+                  }}
+                  className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors py-2"
+                >
+                  Marketplace
                 </Link>
               </div>
             </div>
@@ -615,6 +632,7 @@ export default function Home() {
               <ul className="space-y-2 sm:space-y-3">
                 <li><Link href="/agent-builder" className="text-slate-400 hover:text-white transition-colors text-sm">Agent Builder</Link></li>
                 <li><Link href="/my-agents" className="text-slate-400 hover:text-white transition-colors text-sm">My Agents</Link></li>
+                <li><Link href="/marketplace" className="text-slate-400 hover:text-white transition-colors text-sm">Marketplace</Link></li>
                 <li><Link href="/contract-explorer" className="text-slate-400 hover:text-white transition-colors text-sm">Contract Explorer</Link></li>
                 <li><Link href="/api-docs" className="text-slate-400 hover:text-white transition-colors text-sm">API Docs</Link></li>
               </ul>

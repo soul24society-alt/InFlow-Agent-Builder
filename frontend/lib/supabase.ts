@@ -32,6 +32,7 @@ export interface Agent {
   description: string | null
   api_key: string
   gas_budget: number | null
+  is_public: boolean
   tools: Array<{
     tool: string
     next_tool: string | null
