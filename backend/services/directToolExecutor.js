@@ -909,7 +909,11 @@ function formatToolResponse(toolResults) {
         return `Transfer completed. Tx: ${payload.transactionDigest || payload.transactionHash || 'unknown'}.`;
       }
       case 'deploy_token': {
-        return `Token deployed. Token ID: ${payload.tokenObjectId || payload.tokenId || 'unknown'}. Tx: ${payload.transactionDigest || payload.transactionHash || 'unknown'}.`;
+        const tokenId = payload.tokenObjectId || payload.tokenId || 'unknown';
+        const explorerLink = payload.explorerUrl
+          ? ` [View transaction on OneScan](${payload.explorerUrl})`
+          : '';
+        return `Token deployed. Token ID: \`${tokenId}\`.${explorerLink}`;
       }
       case 'deploy_nft_collection': {
         return `NFT collection deployed. Address: ${payload.collectionObjectId || payload.collectionAddress || 'unknown'}. Tx: ${payload.transactionDigest || payload.transactionHash || 'unknown'}.`;
