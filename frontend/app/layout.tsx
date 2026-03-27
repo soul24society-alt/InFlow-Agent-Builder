@@ -52,7 +52,8 @@ export const metadata: Metadata = {
   title: "InFlow Agent Builder",
   description: "Build your own InFlow agents with ease.",
   icons: {
-    icon: "/logo.jpeg",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
   },
 };
 
@@ -65,7 +66,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-        <link rel="icon" href="/logo.jpeg" type="image/jpeg" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body
         className={`${aeonik.variable} ${geistMono.variable} antialiased`}
