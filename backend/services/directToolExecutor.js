@@ -905,6 +905,23 @@ function formatToolResponse(toolResults) {
       case 'get_balance': {
         return `Balance for ${payload.address}: ${payload.balance} OCT.`;
       }
+      case 'wallet_history': {
+        const transactions = payload.transactions || [];
+        if (!transactions.length) {
+          return `No recent transactions found for ${payload.address}.`;
+        }
+        const summary = transactions
+          .slice(0, 5)
+          .map(tx => {
+            const direction = tx.direction ? `${tx.direction} ` : '';
+            return `${direction}${tx.status}: ${tx.digest}`;
+          })
+          .join(', ');
+        return `Recent transactions for ${payload.address}: ${summary}.`;
+      }
+      case 'tx_status': {
+        return `Transaction ${payload.digest}: ${payload.status || 'unknown'}.`;
+      }
       case 'transfer': {
         return `Transfer completed. Tx: ${payload.transactionDigest || payload.transactionHash || 'unknown'}.`;
       }

@@ -192,7 +192,9 @@ const AVAILABLE_TOOLS = {
  * @param {Array} conversationHistory - Recent conversation messages for context
  * @returns {Promise<Object>} Tool execution plan with tools, order, and parameters
  */
-async function intelligentToolRouting(userMessage, conversationHistory = []) {
+async function intelligentToolRouting(userMessage, conversationHistory = [], options = {}) {
+  const connectedWalletAddress = options.walletAddress || options.wallet_address || null;
+
   // Quick regex-based off-topic detection
   const offTopicPatterns = [
     /\b(prime minister|president|politician|government|election|politics)\b/i,
@@ -245,6 +247,10 @@ async function intelligentToolRouting(userMessage, conversationHistory = []) {
       if (content.includes('Current prices:')) extractedEntities.push(`Previous result: ${content}`);
     }
     
+    if (connectedWalletAddress) {
+      extractedEntities.push(`Connected wallet address: ${connectedWalletAddress}`);
+    }
+
     const entitySummary = extractedEntities.length > 0
       ? `\n\nKEY DATA FROM CONVERSATION (reuse this, do NOT ask user again):\n${[...new Set(extractedEntities)].join('\n')}`
       : '';
@@ -271,6 +277,7 @@ If the user's question requires data that a tool can fetch, ADD THAT TOOL TO THE
 ## CRITICAL RULE — USE CONVERSATION CONTEXT:
 The conversation history contains previously fetched data. EXTRACT and REUSE it:
 - If a wallet address was mentioned earlier, use it (don't ask again)
+- If a connected wallet address is provided, prefer it for "my wallet", "my balance", "my transaction history", "current wallet", or "current public key"
 - If a balance was fetched, reference it in calculations
 - If the user says "this balance" or "my balance", look for the address/balance in recent messages
 - Pronouns like "it", "this", "that" refer to the most recent relevant entity
@@ -279,6 +286,8 @@ IMPORTANT: Off-topic detection — If the user's request is NOT related to block
 
 Available Tools:
 ${toolsList}
+
+Connected wallet address: ${connectedWalletAddress || 'not provided'}
 
 User Request: "${userMessage}"${conversationContext}
 
@@ -381,6 +390,25 @@ Respond ONLY with valid JSON, no other text.`;
 
     const jsonStr = jsonMatch[1] || jsonMatch[0];
     const routingPlan = JSON.parse(jsonStr.trim());
+
+    if (connectedWalletAddress) {
+      routingPlan.extracted_context = routingPlan.extracted_context || {};
+      if (!routingPlan.extracted_context.wallet_address) {
+        routingPlan.extracted_context.wallet_address = connectedWalletAddress;
+      }
+
+      for (const step of routingPlan.execution_plan?.steps || []) {
+        const needsWalletAddress = ['get_balance', 'wallet_history', 'check_oneid'].includes(step.tool);
+        if (!needsWalletAddress) continue;
+
+        step.parameters = step.parameters || {};
+        if (!step.parameters.address) {
+          step.parameters.address = connectedWalletAddress;
+        }
+      }
+
+      routingPlan.missing_info = (routingPlan.missing_info || []).filter(info => !/wallet\s*address|public\s*key|address/i.test(info));
+    }
 
     // POST-PROCESS: Enforce get_balance when a calculate step references balance variables
     // This prevents the AI from skipping get_balance and leaving eth_balance unresolved.

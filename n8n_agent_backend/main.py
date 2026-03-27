@@ -53,6 +53,7 @@ if not GROQ_API_KEYS and not GEMINI_API_KEY:
 # Backend URL - configurable via environment or defaults to localhost
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:3001")
 REDACTED_PRIVATE_KEY = "[REDACTED_PRIVATE_KEY]"
+CONNECTED_WALLET_ADDRESS_TOOLS = {"get_balance", "get_usdo_balance", "wallet_history"}
 
 # USDO — OneChain native USD stablecoin coin type
 USDO_COIN_TYPE = os.getenv("USDO_COIN_TYPE", f"{os.getenv('USDO_PACKAGE_ID', '')}::usdo::USDO")
@@ -60,6 +61,13 @@ USDO_COIN_TYPE = os.getenv("USDO_COIN_TYPE", f"{os.getenv('USDO_PACKAGE_ID', '')
 def should_inject_private_key(function_args: Dict[str, Any]) -> bool:
     value = function_args.get("privateKey")
     return (not value) or value == REDACTED_PRIVATE_KEY
+
+
+def should_inject_wallet_address(function_name: str, function_args: Dict[str, Any]) -> bool:
+    if function_name not in CONNECTED_WALLET_ADDRESS_TOOLS:
+        return False
+    value = function_args.get("address")
+    return not value
 
 # Tool Definitions
 TOOL_DEFINITIONS = {
@@ -246,7 +254,7 @@ TOOL_DEFINITIONS = {
     # ── Wallet & Transaction ──────────────────────────────────────────────────
     "wallet_history": {
         "name": "wallet_history",
-        "description": "Fetch recent transaction history for a wallet address on OneChain.",
+        "description": "Fetch recent transaction history for a wallet address on OneChain. If the user asks for my/current wallet transaction history, use their connected wallet address automatically.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -1393,7 +1401,7 @@ def process_agent_conversation(
     
     # Add wallet context if available (preferred over private key)
     if wallet_address:
-        system_prompt += f"\n\nCONTEXT: User's connected wallet address is: {wallet_address}. Use this as the fromAddress for transfers."
+        system_prompt += f"\n\nCONTEXT: User's connected wallet address is: {wallet_address}. Use this as the fromAddress for transfers and as the address for balance/history lookups when the user refers to their current wallet, public key, or transaction history."
     elif private_key:
         system_prompt += f"\n\nCONTEXT: User's private key is available: {private_key}"
     
@@ -1426,8 +1434,11 @@ def process_agent_conversation(
                         function_name = tool_call.function.name
                         function_args = json.loads(tool_call.function.arguments)
                         
+                        # Add wallet address for connected-wallet lookup tools
+                        if wallet_address and should_inject_wallet_address(function_name, function_args):
+                            function_args["address"] = wallet_address
                         # Add private key if needed and available
-                        if private_key and function_name in TOOL_DEFINITIONS:
+                        elif private_key and function_name in TOOL_DEFINITIONS:
                             tool_params = TOOL_DEFINITIONS[function_name]["parameters"]["properties"]
                             if "privateKey" in tool_params and should_inject_private_key(function_args):
                                 function_args["privateKey"] = private_key
@@ -1460,10 +1471,9 @@ def process_agent_conversation(
                             if wallet_address and function_name == "transfer":
                                 if "fromAddress" not in function_args:
                                     function_args["fromAddress"] = wallet_address
-                            # Add wallet address for get_balance if asking for "my balance"
-                            elif wallet_address and function_name == "get_balance":
-                                if "address" not in function_args or not function_args["address"]:
-                                    function_args["address"] = wallet_address
+                            # Add wallet address for connected-wallet lookup tools
+                            elif wallet_address and should_inject_wallet_address(function_name, function_args):
+                                function_args["address"] = wallet_address
                             # Fallback to private key if needed and available
                             elif private_key and function_name in TOOL_DEFINITIONS:
                                 tool_params = TOOL_DEFINITIONS[function_name]["parameters"]["properties"]
@@ -1647,10 +1657,9 @@ def process_agent_conversation(
                 if wallet_address and function_name == "transfer":
                     if "fromAddress" not in function_args:
                         function_args["fromAddress"] = wallet_address
-                # Add wallet address for get_balance if asking for "my balance"
-                elif wallet_address and function_name == "get_balance":
-                    if "address" not in function_args or not function_args["address"]:
-                        function_args["address"] = wallet_address
+                # Add wallet address for connected-wallet lookup tools
+                elif wallet_address and should_inject_wallet_address(function_name, function_args):
+                    function_args["address"] = wallet_address
                 # Fallback to private key if needed and available
                 elif private_key and function_name in TOOL_DEFINITIONS:
                     tool_params = TOOL_DEFINITIONS[function_name]["parameters"]["properties"]

@@ -233,7 +233,9 @@ async function chat(req, res) {
     const safeMessages = sanitizeConversationMessages(messages);
 
     // Check if the message requires tools using intelligent AI routing
-    const routingPlan = await intelligentToolRouting(sanitizedUserMessage, safeMessages);
+    const routingPlan = await intelligentToolRouting(sanitizedUserMessage, safeMessages, {
+      walletAddress
+    });
     
     // Guard rail: Reject off-topic questions
     if (routingPlan.is_off_topic) {

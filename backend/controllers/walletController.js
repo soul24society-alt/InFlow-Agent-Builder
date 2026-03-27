@@ -105,30 +105,67 @@ async function getTransactionStatus(req, res) {
 async function getWalletHistory(req, res) {
   try {
     const { address } = req.params;
-    const { limit = '20', cursor } = req.query;
+    const { limit = '20' } = req.query;
+    const pageSize = Math.max(1, Math.min(parseInt(limit, 10) || 20, 50));
 
     const client = getClient();
-    const result = await client.queryTransactionBlocks({
-      filter: { FromAddress: address },
+    const baseOptions = {
       options: { showEffects: true, showInput: false },
-      limit: parseInt(limit),
-      cursor: cursor || undefined,
+      limit: pageSize,
       order: 'descending',
-    });
+    };
 
-    const transactions = (result.data ?? []).map(tx => ({
-      digest: tx.digest,
-      status: tx.effects?.status?.status ?? 'unknown',
-      timestampMs: tx.timestampMs,
-      checkpoint: tx.checkpoint,
-      explorerUrl: getTxExplorerUrl(tx.digest),
-    }));
+    const [sentResult, receivedResult] = await Promise.all([
+      client.queryTransactionBlocks({
+        filter: { FromAddress: address },
+        ...baseOptions,
+      }),
+      client.queryTransactionBlocks({
+        filter: { ToAddress: address },
+        ...baseOptions,
+      }),
+    ]);
+
+    const mergedTransactions = new Map();
+    const addTransactions = (items = [], direction) => {
+      for (const tx of items) {
+        if (!tx?.digest) continue;
+
+        const existing = mergedTransactions.get(tx.digest);
+        const directions = new Set(existing?.directions || []);
+        directions.add(direction);
+
+        mergedTransactions.set(tx.digest, {
+          tx: existing?.tx || tx,
+          directions: Array.from(directions),
+        });
+      }
+    };
+
+    addTransactions(sentResult.data, 'outgoing');
+    addTransactions(receivedResult.data, 'incoming');
+
+    const transactions = Array.from(mergedTransactions.values())
+      .map(({ tx, directions }) => ({
+        digest: tx.digest,
+        status: tx.effects?.status?.status ?? 'unknown',
+        timestampMs: tx.timestampMs,
+        checkpoint: tx.checkpoint,
+        direction: directions.length > 1 ? 'self' : directions[0] || 'unknown',
+        explorerUrl: getTxExplorerUrl(tx.digest),
+      }))
+      .sort((a, b) => Number(b.timestampMs || 0) - Number(a.timestampMs || 0))
+      .slice(0, pageSize);
 
     return res.json(successResponse({
       address,
       transactions,
-      nextCursor: result.nextCursor,
-      hasNextPage: result.hasNextPage,
+      sentCount: sentResult.data?.length ?? 0,
+      receivedCount: receivedResult.data?.length ?? 0,
+      nextCursor: null,
+      sentNextCursor: sentResult.nextCursor ?? null,
+      receivedNextCursor: receivedResult.nextCursor ?? null,
+      hasNextPage: Boolean(sentResult.hasNextPage || receivedResult.hasNextPage),
       network: ACTIVE_NETWORK,
       explorerUrl: getAddressExplorerUrl(address),
     }));
