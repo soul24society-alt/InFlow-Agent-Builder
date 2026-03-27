@@ -598,7 +598,7 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
           {/* Mobile: Overlay */}
           <div className="md:hidden fixed inset-0 z-50">
             <div className="absolute inset-0 bg-black/50" onClick={() => setSelectedNode(null)} />
-            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-xl max-h-[80vh] overflow-y-auto">
+            <div className="absolute bottom-0 left-0 right-0 bg-[#0f1115] text-neutral-100 rounded-t-2xl border-t border-neutral-800 shadow-xl max-h-[80vh] overflow-y-auto">
               <NodeConfigPanel
                 node={selectedNode as WorkflowNode}
                 updateNodeData={updateNodeData}
@@ -607,7 +607,7 @@ export default function WorkflowBuilder({ agentId }: WorkflowBuilderProps) {
             </div>
           </div>
           {/* Desktop: Sidebar */}
-          <div className="hidden md:block w-80 border-l border-gray-200 p-4 bg-gray-50">
+          <div className="hidden md:block w-80 border-l border-neutral-800 p-4 bg-[#0f1115] text-neutral-100">
             <NodeConfigPanel
               node={selectedNode as WorkflowNode}
               updateNodeData={updateNodeData}

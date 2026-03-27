@@ -199,10 +199,9 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
       // Client-side safe evaluation
       const keys = Object.keys(variables)
       const vals = Object.values(variables)
-      // eslint-disable-next-line no-new-func
       const fn = new Function(...keys, `"use strict"; return !!(${condExpression})`)
       const value = fn(...vals)
-      setCondResult({ success: true, message: `Preview result: ${value === true ? "✅ TRUE" : "❌ FALSE"}` })
+      setCondResult({ success: true, message: `Preview result: ${value === true ? "TRUE" : "FALSE"}` })
     } catch (err: any) {
       setCondResult({ success: false, message: `Evaluation error: ${err.message}` })
     } finally {
@@ -212,13 +211,13 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
 
   // ── Sync helpers ──
   const syncWebhookConfig = (overrides: Record<string, any> = {}) => {
-    const config = { url: webhookUrl, method: webhookMethod, secret: webhookSecret, ...overrides }
+    const config: Record<string, any> = { url: webhookUrl, method: webhookMethod, secret: webhookSecret, ...overrides }
     try { config.payload = JSON.parse(webhookPayload) } catch { /* keep as-is */ }
     updateNodeData(node.id, { config })
   }
 
   const syncConditionConfig = (overrides: Record<string, any> = {}) => {
-    const config = { expression: condExpression, description: condDescription, ...overrides }
+    const config: Record<string, any> = { expression: condExpression, description: condDescription, ...overrides }
     if (condVariables.trim()) { try { config.variables = JSON.parse(condVariables) } catch { /* ignore */ } }
     updateNodeData(node.id, { config })
   }
@@ -346,7 +345,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
   // ── Email config panel ──
   if (isEmail) {
     return (
-      <div className="h-full flex flex-col p-4">
+      <div className="h-full flex flex-col p-4 bg-[#0f1115] text-neutral-100">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">Send Email</h2>
           <Button variant="ghost" size="icon" onClick={onClose}>
@@ -394,7 +393,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
                 className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
                   useHtml
                     ? "bg-foreground text-background border-foreground"
-                    : "bg-background text-muted-foreground border-gray-300 hover:border-gray-400"
+                    : "bg-background text-muted-foreground border-input hover:border-border"
                 }`}
               >
                 {useHtml ? "HTML" : "Plain text"}
@@ -448,8 +447,8 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
             <div
               className={`flex items-start gap-2 p-2 rounded-md text-xs ${
                 sendResult.success
-                  ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-red-50 text-red-700 border border-red-200"
+                  ? "bg-primary/10 text-foreground border border-border"
+                  : "bg-destructive/10 text-destructive border border-destructive/30"
               }`}
             >
               {sendResult.success ? (
@@ -463,7 +462,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
 
           {/* AI hint */}
           <div className="p-2 rounded-md bg-muted border border-border text-[10px] text-accent-foreground">
-            💡 Tip: You can also ask the AI chatbot to compose and send emails for you. Just say something like &quot;Send an email to alice@example.com about the token deployment.&quot;
+            Tip: You can also ask the AI chatbot to compose and send emails for you. Just say something like &quot;Send an email to alice@example.com about the token deployment.&quot;
           </div>
         </div>
 
@@ -496,7 +495,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
   // ── Webhook config panel ──
   if (isWebhook) {
     return (
-      <div className="h-full flex flex-col p-4">
+      <div className="h-full flex flex-col p-4 bg-[#0f1115] text-neutral-100">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <Webhook className="h-4 w-4 text-muted-foreground" />
@@ -575,8 +574,8 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
             <div
               className={`flex items-start gap-2 p-2 rounded-md text-xs ${
                 webhookResult.success
-                  ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-red-50 text-red-700 border border-red-200"
+                  ? "bg-primary/10 text-foreground border border-border"
+                  : "bg-destructive/10 text-destructive border border-destructive/30"
               }`}
             >
               {webhookResult.success ? (
@@ -589,7 +588,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
           )}
 
           <div className="p-2 rounded-md bg-muted border border-border text-[10px] text-accent-foreground">
-            💡 Tip: Use this node at the end of a workflow to notify external services (n8n, Slack, custom APIs) when your blockchain task completes.
+            Tip: Use this node at the end of a workflow to notify external services (n8n, Slack, custom APIs) when your blockchain task completes.
           </div>
         </div>
 
@@ -622,7 +621,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
   // ── Condition Check config panel ──
   if (isCondition) {
     return (
-      <div className="h-full flex flex-col p-4">
+      <div className="h-full flex flex-col p-4 bg-[#0f1115] text-neutral-100">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <ToggleLeft className="h-4 w-4 text-muted-foreground" />
@@ -678,8 +677,8 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
             <div
               className={`flex items-start gap-2 p-2 rounded-md text-xs ${
                 condResult.success
-                  ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-red-50 text-red-700 border border-red-200"
+                  ? "bg-primary/10 text-foreground border border-border"
+                  : "bg-destructive/10 text-destructive border border-destructive/30"
               }`}
             >
               {condResult.success ? (
@@ -692,7 +691,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
           )}
 
           <div className="p-2 rounded-md bg-muted border border-border text-[10px] text-accent-foreground">
-            💡 Use this node to gate later steps — connect its output to a Transfer or Email node to conditionally execute based on on-chain state. The &quot;Preview&quot; button tests your expression locally with the variables you provide.
+            Tip: Use this node to gate later steps and connect its output to a Transfer or Email node to conditionally execute based on on-chain state. The &quot;Preview&quot; button tests your expression locally with the variables you provide.
           </div>
         </div>
 
@@ -724,7 +723,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
   // ── Yes / No config panel ──
   if (isYesNo) {
     return (
-      <div className="h-full flex flex-col p-4">
+      <div className="h-full flex flex-col p-4 bg-[#0f1115] text-neutral-100">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <ThumbsUp className="h-4 w-4 text-muted-foreground" />
@@ -759,11 +758,11 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
                 }}
                 className={`flex-1 py-3 rounded-lg border-2 text-sm font-semibold transition-all ${
                   yesNoAnswer === "yes"
-                    ? "bg-green-500 border-green-500 text-white shadow-md"
-                    : "border-gray-200 text-gray-500 hover:border-green-300 hover:text-green-600"
+                    ? "bg-primary border-primary text-primary-foreground shadow-md"
+                    : "border-input text-muted-foreground hover:border-primary/40 hover:text-foreground"
                 }`}
               >
-                ✅ Yes
+                Yes
               </button>
               <button
                 type="button"
@@ -773,11 +772,11 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
                 }}
                 className={`flex-1 py-3 rounded-lg border-2 text-sm font-semibold transition-all ${
                   yesNoAnswer === "no"
-                    ? "bg-red-500 border-red-500 text-white shadow-md"
-                    : "border-gray-200 text-gray-500 hover:border-red-300 hover:text-red-600"
+                    ? "bg-destructive border-destructive text-destructive-foreground shadow-md"
+                    : "border-input text-muted-foreground hover:border-destructive/40 hover:text-foreground"
                 }`}
               >
-                ❌ No
+                No
               </button>
             </div>
             {yesNoAnswer && (
@@ -788,7 +787,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
           </div>
 
           <div className="p-2 rounded-md bg-muted border border-border text-[10px] text-accent-foreground">
-            💡 Use this node for governance approval gates, manual override steps, or any binary decision point in your workflow.
+            Tip: Use this node for governance approval gates, manual override steps, or any binary decision point in your workflow.
           </div>
         </div>
 
@@ -810,7 +809,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
   // ── Create DAO panel ──
   if (isCreateDao) {
     return (
-      <div className="h-full flex flex-col p-4">
+      <div className="h-full flex flex-col p-4 bg-[#0f1115] text-neutral-100">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -848,13 +847,13 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
               onChange={(e) => { setDaoWallet(e.target.value); updateNodeData(node.id, { config: { name: daoName, description: daoDescription, votingPeriodDays: daoVotingDays, quorumPercent: daoQuorum, walletAddress: e.target.value } }) }} />
           </div>
           {daoResult && (
-            <div className={`flex items-start gap-2 p-2 rounded-md text-xs ${daoResult.success ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+            <div className={`flex items-start gap-2 p-2 rounded-md text-xs ${daoResult.success ? "bg-primary/10 text-foreground border border-border" : "bg-destructive/10 text-destructive border border-destructive/30"}`}>
               {daoResult.success ? <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" /> : <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />}
               <span className="break-all">{daoResult.message}</span>
             </div>
           )}
           <div className="p-2 rounded-md bg-muted border border-border text-[10px] text-accent-foreground">
-            💡 Once created, copy the DAO ID to use in downstream Create Proposal and Vote nodes.
+            Tip: Once created, copy the DAO ID to use in downstream Create Proposal and Vote nodes.
           </div>
         </div>
 
@@ -871,7 +870,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
   // ── Create Proposal panel ──
   if (isCreateProposal) {
     return (
-      <div className="h-full flex flex-col p-4">
+      <div className="h-full flex flex-col p-4 bg-[#0f1115] text-neutral-100">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <ScrollText className="h-4 w-4 text-muted-foreground" />
@@ -907,13 +906,13 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
               onChange={(e) => { setPropActions(e.target.value) }} />
           </div>
           {propResult && (
-            <div className={`flex items-start gap-2 p-2 rounded-md text-xs ${propResult.success ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+            <div className={`flex items-start gap-2 p-2 rounded-md text-xs ${propResult.success ? "bg-primary/10 text-foreground border border-border" : "bg-destructive/10 text-destructive border border-destructive/30"}`}>
               {propResult.success ? <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" /> : <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />}
               <span className="break-all">{propResult.message}</span>
             </div>
           )}
           <div className="p-2 rounded-md bg-muted border border-border text-[10px] text-accent-foreground">
-            💡 Copy the returned Proposal ID to use in Vote nodes downstream.
+            Tip: Copy the returned Proposal ID to use in Vote nodes downstream.
           </div>
         </div>
 
@@ -930,7 +929,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
   // ── Vote panel ──
   if (isVote) {
     return (
-      <div className="h-full flex flex-col p-4">
+      <div className="h-full flex flex-col p-4 bg-[#0f1115] text-neutral-100">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <Vote className="h-4 w-4 text-muted-foreground" />
@@ -954,10 +953,10 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
                   onClick={() => { setVoteChoice(v); updateNodeData(node.id, { config: { proposalId: voteProposalId, vote: v, walletAddress: voteWallet } }) }}
                   className={`flex-1 py-2.5 rounded-lg border-2 text-xs font-semibold capitalize transition-all ${
                     voteChoice === v
-                      ? v === "yes" ? "bg-green-500 border-green-500 text-white shadow-md" : v === "no" ? "bg-red-500 border-red-500 text-white shadow-md" : "bg-gray-500 border-gray-500 text-white shadow-md"
-                      : "border-gray-200 text-gray-500 hover:border-gray-400"
+                      ? v === "yes" ? "bg-primary border-primary text-primary-foreground shadow-md" : v === "no" ? "bg-destructive border-destructive text-destructive-foreground shadow-md" : "bg-secondary border-secondary text-secondary-foreground shadow-md"
+                      : "border-input text-muted-foreground hover:border-accent-foreground/30"
                   }`}>
-                  {v === "yes" ? "✅ Yes" : v === "no" ? "❌ No" : "🤐 Abstain"}
+                  {v === "yes" ? "Yes" : v === "no" ? "No" : "Abstain"}
                 </button>
               ))}
             </div>
@@ -970,13 +969,13 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
           </div>
 
           {voteResult && (
-            <div className={`flex items-start gap-2 p-2 rounded-md text-xs ${voteResult.success ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+            <div className={`flex items-start gap-2 p-2 rounded-md text-xs ${voteResult.success ? "bg-primary/10 text-foreground border border-border" : "bg-destructive/10 text-destructive border border-destructive/30"}`}>
               {voteResult.success ? <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" /> : <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />}
               <span className="break-all">{voteResult.message}</span>
             </div>
           )}
           <div className="p-2 rounded-md bg-muted border border-border text-[10px] text-accent-foreground">
-            💡 Each wallet can change their vote — submitting again replaces the previous vote.
+            Tip: Each wallet can change their vote; submitting again replaces the previous vote.
           </div>
         </div>
 
@@ -993,7 +992,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
   // ── Get Proposal panel ──
   if (isGetProposal) {
     return (
-      <div className="h-full flex flex-col p-4">
+      <div className="h-full flex flex-col p-4 bg-[#0f1115] text-neutral-100">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <ClipboardList className="h-4 w-4 text-muted-foreground" />
@@ -1010,19 +1009,19 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
           </div>
 
           {getProposalResult && (
-            <div className={`flex items-start gap-2 p-2 rounded-md text-xs ${getProposalResult.success ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+            <div className={`flex items-start gap-2 p-2 rounded-md text-xs ${getProposalResult.success ? "bg-primary/10 text-foreground border border-border" : "bg-destructive/10 text-destructive border border-destructive/30"}`}>
               {getProposalResult.success ? <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" /> : <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />}
               <span className="break-all">{getProposalResult.message}</span>
             </div>
           )}
 
           {getProposalResult?.success && getProposalResult.data && (
-            <div className="p-2 rounded-md bg-gray-50 border border-gray-200 space-y-1">
+            <div className="p-2 rounded-md bg-muted border border-border space-y-1">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Vote Tally</p>
               <div className="flex gap-3 text-xs">
-                <span className="text-green-700 font-medium">✅ Yes: {getProposalResult.data.proposal?.votes?.yes ?? 0}</span>
-                <span className="text-red-700 font-medium">❌ No: {getProposalResult.data.proposal?.votes?.no ?? 0}</span>
-                <span className="text-gray-600">🤐 Abstain: {getProposalResult.data.proposal?.votes?.abstain ?? 0}</span>
+                <span className="text-foreground font-medium">Yes: {getProposalResult.data.proposal?.votes?.yes ?? 0}</span>
+                <span className="text-destructive font-medium">No: {getProposalResult.data.proposal?.votes?.no ?? 0}</span>
+                <span className="text-muted-foreground">Abstain: {getProposalResult.data.proposal?.votes?.abstain ?? 0}</span>
               </div>
               <p className="text-[10px] text-muted-foreground">
                 Yes share: <strong>{getProposalResult.data.stats?.yesPercent}</strong> · Status: <strong>{getProposalResult.data.proposal?.status}</strong>
@@ -1031,7 +1030,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
           )}
 
           <div className="p-2 rounded-md bg-muted border border-border text-[10px] text-accent-foreground">
-            💡 Use this node to query live vote tallies after a Vote node, or to check proposal status before executing downstream actions.
+            Tip: Use this node to query live vote tallies after a Vote node, or to check proposal status before executing downstream actions.
           </div>
         </div>
 
@@ -1047,7 +1046,7 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
 
   // ── Default config panel for other tools ──
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-[#0f1115] text-neutral-100 p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Tool Information</h2>
         <Button variant="ghost" size="icon" onClick={onClose}>
@@ -1058,14 +1057,14 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
       <div className="space-y-4 flex-1 overflow-y-auto">
         <div className="space-y-2">
           <Label htmlFor="tool-name">Tool Name</Label>
-          <div className="p-3 bg-gray-100 rounded-md">
+          <div className="p-3 bg-muted rounded-md border border-border">
             <p className="text-sm font-medium">{node.data.label || node.type || "Unknown"}</p>
           </div>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="tool-id">Tool ID</Label>
-          <div className="p-3 bg-gray-100 rounded-md">
+          <div className="p-3 bg-muted rounded-md border border-border">
             <p className="text-sm font-mono">{node.type || "N/A"}</p>
           </div>
         </div>
